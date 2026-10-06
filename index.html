@@ -21,12 +21,22 @@
 </div>
 
 <div class="wrap">
-  <header style="padding:48px 0 18px">
-    <div class="kicker">中 西 医 结 合 · 心 悸 专 病 数 据 库</div>
-    <h1 class="big">心 悸 古 今 知 识 库</h1>
-    <p style="max-width:720px; color:var(--ink-2); margin:8px 0 0">
-      汇历代医籍心悸条文、现代文献证据、真实世界病例与智能模型于一库——可查、可学、可问、可诊。
-    </p>
+  <header style="padding:48px 0 18px; position:relative; overflow:hidden">
+    <div class="pattern-wall" id="patternWall"></div>
+    <div style="position:relative; z-index:1">
+      <div class="kicker font-reveal">中 西 医 结 合 · 心 悸 专 病 数 据 库</div>
+      <h1 class="big">
+        <span class="flip-title" onclick="this.classList.toggle('flip')">
+          <span class="flip-inner">
+            <span class="flip-face" id="heroTitle">心 悸 古 今 知 识 库</span>
+            <span class="flip-face flip-back" style="color:var(--zhu); letter-spacing:.28em">X I N J I . W I K I</span>
+          </span>
+        </span>
+      </h1>
+      <p style="max-width:720px; color:var(--ink-2); margin:8px 0 0">
+        汇历代医籍心悸条文、现代文献证据、真实世界病例与智能模型于一库——可查、可学、可问、可诊。
+      </p>
+    </div>
   </header>
 
   <!-- 壹 · 每日一条 -->
@@ -323,6 +333,37 @@ document.getElementById("layerRows").innerHTML = [
 /* ═══ 滚动显现 ═══ */
 const io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) e.target.classList.add("in"); }), {threshold:.08});
 document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
+
+/* ═══ mimo 式动效：字墙底纹 + 逐字显现 ═══ */
+(function(){
+  // 字墙：多行重复「心 悸 · 脉 结 代 ·」古风字标，隔行反向漂移
+  const wall = document.getElementById("patternWall");
+  if(wall){
+    const motifs = ["心 悸 · 脉 结 代", "怔 忡 · 惊 悸", "炙 甘 草 汤", "阴 阳 · 五 行"];
+    for(let r=0; r<7; r++){
+      const row = document.createElement("div");
+      row.className = "pattern-row " + (r%2 ? "drift-b" : "drift-a");
+      const unit = motifs[r % motifs.length];
+      row.innerHTML = Array.from({length:14}, ()=>`<span class="pt">${unit}</span>`).join("");
+      wall.appendChild(row);
+    }
+  }
+  // 逐字显现：标题与小节题
+  document.querySelectorAll(".big .flip-face, .kicker").forEach(el=>{
+    const txt = el.textContent;
+    el.textContent = "";
+    [...txt].forEach((ch,i)=>{
+      const s = document.createElement("span");
+      s.className = "fx-letter";
+      s.style.animationDelay = (i*0.045)+"s";
+      s.textContent = ch === " " ? "\u00A0" : ch;
+      el.appendChild(s);
+    });
+  });
+  // 标题每 9 秒自动翻转一次（mimo flip 节奏）
+  const ft = document.querySelector(".flip-title");
+  if(ft) setInterval(()=>ft.classList.toggle("flip"), 9000);
+})();
 </script>
 </body>
 </html>
