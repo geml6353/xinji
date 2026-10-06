@@ -99,9 +99,33 @@
     </div>
   </section>
 
-  <!-- 叁 · 证型罗盘 -->
+  <!-- 叁 · 五脏知识图谱 -->
   <div class="section-lead reveal">
-    <span class="no">叁</span><h2>证 型 罗 盘</h2>
+    <span class="no">叁</span><h2>五 脏 知 识 图 谱</h2>
+    <span class="hint">如关系图谱般 · 拖拽 / 悬停邻域 / 点击详情</span>
+  </div>
+  <section class="panel reveal">
+    <div class="graph-stage">
+      <div>
+        <canvas id="wgGraph" class="graph-canvas"></canvas>
+        <div class="graph-legend">
+          <span class="sw" style="color:#A6382C"><span class="dotc"></span>五脏</span>
+          <span class="sw" style="color:#7E2820"><span class="dotc"></span>证型</span>
+          <span class="sw" style="color:#B08D4F"><span class="dotc"></span>方剂</span>
+          <span class="sw" style="color:#3E5C50"><span class="dotc"></span>中药</span>
+          <span class="sw" style="color:#33506B"><span class="dotc"></span>脉象</span>
+          <span class="sw" style="color:#5F7A6E"><span class="dotc"></span>经络</span>
+          <span class="sw" style="color:#6E6A5E"><span class="dotc"></span>古籍</span>
+          <span class="sw" style="color:#9A8F7A"><span class="dotc"></span>五志/五体</span>
+        </div>
+      </div>
+      <div class="graph-info" id="wgInfo"></div>
+    </div>
+  </section>
+
+  <!-- 肆 · 证型罗盘 -->
+  <div class="section-lead reveal">
+    <span class="no">肆</span><h2>证 型 罗 盘</h2>
     <span class="hint">点选证型 · 方药针茶风险一览</span>
   </div>
   <section class="compass reveal">
@@ -109,16 +133,16 @@
     <div class="syn-detail" id="synDetail"></div>
   </section>
 
-  <!-- 肆 · 脉象四辨 -->
+  <!-- 伍 · 脉象四辨 -->
   <div class="section-lead reveal">
-    <span class="no">肆</span><h2>脉 象 四 辨</h2>
+    <span class="no">伍</span><h2>脉 象 四 辨</h2>
     <span class="hint">悬停卡片 · 看现代心律对应</span>
   </div>
   <section class="pulse-grid reveal" id="pulseGrid"></section>
 
-  <!-- 伍 · 经络流注 -->
+  <!-- 陆 · 经络流注 -->
   <div class="section-lead reveal">
-    <span class="no">伍</span><h2>经 络 流 注</h2>
+    <span class="no">陆</span><h2>经 络 流 注</h2>
     <span class="hint">心系经络与心悸 · 点选查看</span>
   </div>
   <section class="panel reveal">
@@ -126,9 +150,9 @@
     <div class="mer-info" id="merInfo"></div>
   </section>
 
-  <!-- 陆 · 知识看板 -->
+  <!-- 柒 · 知识看板 -->
   <div class="section-lead reveal">
-    <span class="no">陆</span><h2>知 识 看 板</h2>
+    <span class="no">柒</span><h2>知 识 看 板</h2>
     <span class="hint">全库数据总览</span>
   </div>
   <div class="grid g4 reveal" id="stats"></div>
@@ -167,9 +191,9 @@
     </section>
   </div>
 
-  <!-- 柒 · 功能 -->
+  <!-- 捌 · 功能 -->
   <div class="section-lead reveal">
-    <span class="no">柒</span><h2>功 能</h2>
+    <span class="no">捌</span><h2>功 能</h2>
     <span class="hint">查 · 学 · 问 · 诊</span>
   </div>
   <div class="grid g4 reveal">
@@ -190,6 +214,7 @@
 <script src="data/zhiliao_data.js"></script>
 <script src="data/guwen_index.js"></script>
 <script src="motifs.js"></script>
+<script src="graph.js"></script>
 <script>
 /* ═══ 壹 · 每日一条 ═══ */
 const G = window.GUWEN || [];
