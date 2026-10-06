@@ -363,6 +363,40 @@ document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
   // 标题每 9 秒自动翻转一次（mimo flip 节奏）
   const ft = document.querySelector(".flip-title");
   if(ft) setInterval(()=>ft.classList.toggle("flip"), 9000);
+
+  // 滚动视差：字墙随滚动慢速位移（0.28×）+渐隐
+  const wallEl = document.getElementById("patternWall");
+  if(wallEl && !matchMedia("(prefers-reduced-motion: reduce)").matches){
+    let ticking = false;
+    addEventListener("scroll", ()=>{
+      if(ticking) return;
+      ticking = true;
+      requestAnimationFrame(()=>{
+        const y = scrollY;
+        wallEl.style.transform = `translateY(${y * 0.28}px)`;
+        wallEl.style.opacity = Math.max(0, 1 - y / 620);
+        ticking = false;
+      });
+    }, {passive:true});
+  }
+
+  // 鼠标跟随微光（lerp 平滑）
+  const glow = document.createElement("div");
+  glow.className = "cursor-glow";
+  document.body.appendChild(glow);
+  if(!matchMedia("(prefers-reduced-motion: reduce)").matches && matchMedia("(pointer: fine)").matches){
+    let gx = innerWidth/2, gy = innerHeight/2, tx = gx, ty = gy, on = false;
+    addEventListener("mousemove", e=>{
+      tx = e.clientX; ty = e.clientY;
+      if(!on){ on = true; glow.classList.add("on"); }
+    }, {passive:true});
+    addEventListener("mouseleave", ()=>{ glow.classList.remove("on"); on = false; });
+    (function follow(){
+      gx += (tx-gx)*0.12; gy += (ty-gy)*0.12;
+      glow.style.transform = `translate(${gx}px, ${gy}px)`;
+      requestAnimationFrame(follow);
+    })();
+  }
 })();
 </script>
 </body>

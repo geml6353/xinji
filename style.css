@@ -256,4 +256,15 @@ footer{margin-top:60px; border-top:1px solid var(--line-2); padding:26px 0 40px;
   .pattern-row.drift-a,.pattern-row.drift-b,.seal,.aura::before,.topbar{animation:none}
   .fx-letter{opacity:1; transform:none; animation:none}
   .flip-title:hover .flip-inner{transform:none}
+  .cursor-glow{display:none}
 }
+
+/* 鼠标跟随微光 */
+.cursor-glow{position:fixed; left:0; top:0; width:520px; height:520px; margin:-260px 0 0 -260px;
+  border-radius:50%; pointer-events:none; z-index:60; mix-blend-mode:multiply; opacity:0;
+  background:radial-gradient(circle, rgba(166,56,44,.10) 0%, rgba(176,141,79,.07) 34%, transparent 68%);
+  transition:opacity .5s ease}
+.cursor-glow.on{opacity:1}
+
+/* 字墙视差容器 */
+.pattern-wall{will-change:transform}
