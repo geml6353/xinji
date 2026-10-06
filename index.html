@@ -21,142 +21,308 @@
 </div>
 
 <div class="wrap">
-  <header style="padding:52px 0 26px">
+  <header style="padding:48px 0 18px">
     <div class="kicker">中 西 医 结 合 · 心 悸 专 病 数 据 库</div>
     <h1 class="big">心 悸 古 今 知 识 库</h1>
     <p style="max-width:720px; color:var(--ink-2); margin:8px 0 0">
-      汇历代医籍心悸条文、现代文献证据、真实世界病例与智能模型于一库——
-      可查、可学、可问、可诊。
+      汇历代医籍心悸条文、现代文献证据、真实世界病例与智能模型于一库——可查、可学、可问、可诊。
     </p>
-    <div class="quote">
-      「伤寒脉结代、心动悸，炙甘草汤主之。」
-      <span class="src">——《伤寒论》第 177 条 · 张仲景（古今证据链第一锚点：炙甘草汤 → 养心定悸汤头对头 RCT）</span>
-    </div>
   </header>
 
-  <!-- 知识看板 -->
-  <section>
-    <h2>知 识 看 板</h2>
-    <div class="grid g4" id="stats"></div>
+  <!-- 壹 · 每日一条 -->
+  <div class="section-lead reveal">
+    <span class="no">壹</span><h2>每 日 一 条</h2>
+    <span class="hint">按日轮换 · 点击换一条</span>
+  </div>
+  <div class="panel daily reveal" id="dailyBox" onclick="nextDaily()" style="cursor:pointer">
+    <div class="seal-big">文</div>
+    <div>
+      <div class="q-text" id="dailyQ">「……」</div>
+      <div class="q-bai" id="dailyB"></div>
+    </div>
+    <div style="text-align:center">
+      <div style="font-size:12px; color:var(--muted); letter-spacing:.2em">点 击 换 一 条</div>
+      <div style="font-size:11px; color:var(--zhu); margin-top:6px; letter-spacing:.1em" id="dailyS"></div>
+    </div>
+  </div>
+
+  <!-- 贰 · 五行藏象盘 -->
+  <div class="section-lead reveal">
+    <span class="no">贰</span><h2>五 行 藏 象 盘</h2>
+    <span class="hint">点盘上任一行 · 心悸关联全线联动</span>
+  </div>
+  <section class="panel reveal">
+    <div class="wuxing-stage">
+      <div>
+        <svg class="wuxing-svg" viewBox="0 0 420 380" id="wxSvg">
+          <polygon points="210,58 344,156 292,314 128,314 76,156" fill="none" stroke="var(--line-2)" stroke-width="1.5" stroke-dasharray="4 5"/>
+          <text x="210" y="196" text-anchor="middle" font-size="22" fill="var(--zhu)" letter-spacing="6">心 悸</text>
+          <text x="210" y="220" text-anchor="middle" font-size="11" fill="var(--muted)" letter-spacing="3">君 主 之 官</text>
+          <g class="wx-node" data-wx="木" onclick="pickWx('木')">
+            <circle cx="210" cy="58" r="34" fill="#EAF0E6" stroke="#3E5C50" stroke-width="1.6"/>
+            <text x="210" y="66" text-anchor="middle" font-size="24" fill="#3E5C50">木</text>
+            <text x="210" y="24" text-anchor="middle" font-size="11" fill="var(--muted)">肝 · 东 · 春</text>
+          </g>
+          <g class="wx-node" data-wx="火" onclick="pickWx('火')">
+            <circle cx="344" cy="156" r="38" fill="rgba(166,56,44,.12)" stroke="var(--zhu)" stroke-width="2.4"/>
+            <text x="344" y="165" text-anchor="middle" font-size="26" fill="var(--zhu)">火</text>
+            <text x="344" y="116" text-anchor="middle" font-size="11" fill="var(--zhu)">心 · 南 · 夏 ←本库之主</text>
+          </g>
+          <g class="wx-node" data-wx="土" onclick="pickWx('土')">
+            <circle cx="292" cy="314" r="34" fill="#F3EBD8" stroke="#B08D4F" stroke-width="1.6"/>
+            <text x="292" y="322" text-anchor="middle" font-size="24" fill="#8A6D3B">土</text>
+            <text x="292" y="362" text-anchor="middle" font-size="11" fill="var(--muted)">脾 · 中 · 长夏</text>
+          </g>
+          <g class="wx-node" data-wx="金" onclick="pickWx('金')">
+            <circle cx="128" cy="314" r="34" fill="#EEEDE9" stroke="#8A8578" stroke-width="1.6"/>
+            <text x="128" y="322" text-anchor="middle" font-size="24" fill="#5F5A4E">金</text>
+            <text x="128" y="362" text-anchor="middle" font-size="11" fill="var(--muted)">肺 · 西 · 秋</text>
+          </g>
+          <g class="wx-node" data-wx="水" onclick="pickWx('水')">
+            <circle cx="76" cy="156" r="34" fill="#E4EBF1" stroke="#33506B" stroke-width="1.6"/>
+            <text x="76" y="165" text-anchor="middle" font-size="24" fill="#33506B">水</text>
+            <text x="76" y="116" text-anchor="middle" font-size="11" fill="var(--muted)">肾 · 北 · 冬</text>
+          </g>
+        </svg>
+      </div>
+      <div class="wx-info" id="wxInfo"></div>
+    </div>
   </section>
 
-  <div class="grid g2" style="margin-top:26px">
-    <section class="panel corner">
+  <!-- 叁 · 证型罗盘 -->
+  <div class="section-lead reveal">
+    <span class="no">叁</span><h2>证 型 罗 盘</h2>
+    <span class="hint">点选证型 · 方药针茶风险一览</span>
+  </div>
+  <section class="compass reveal">
+    <div class="syn-list" id="synList"></div>
+    <div class="syn-detail" id="synDetail"></div>
+  </section>
+
+  <!-- 肆 · 脉象四辨 -->
+  <div class="section-lead reveal">
+    <span class="no">肆</span><h2>脉 象 四 辨</h2>
+    <span class="hint">悬停卡片 · 看现代心律对应</span>
+  </div>
+  <section class="pulse-grid reveal" id="pulseGrid"></section>
+
+  <!-- 伍 · 经络流注 -->
+  <div class="section-lead reveal">
+    <span class="no">伍</span><h2>经 络 流 注</h2>
+    <span class="hint">心系经络与心悸 · 点选查看</span>
+  </div>
+  <section class="panel reveal">
+    <div class="meridian-strip" id="merStrip"></div>
+    <div class="mer-info" id="merInfo"></div>
+  </section>
+
+  <!-- 陆 · 知识看板 -->
+  <div class="section-lead reveal">
+    <span class="no">陆</span><h2>知 识 看 板</h2>
+    <span class="hint">全库数据总览</span>
+  </div>
+  <div class="grid g4 reveal" id="stats"></div>
+
+  <div class="grid g2" style="margin-top:22px">
+    <section class="panel corner reveal">
       <div class="stamp">证</div>
       <h2 style="margin-top:0">证 型 分 布</h2>
-      <p style="font-size:13px; color:var(--muted); margin-top:-6px">真实世界病例 5,850 例就诊 · 主证型（清洗后标准化）</p>
+      <p style="font-size:13px; color:var(--muted); margin-top:-6px">真实世界病例 5,850 例就诊 · 主证型（清洗后标准化）· 兼夹证人均 1.64 元素</p>
       <div id="synBars"></div>
-      <p style="font-size:12.5px; color:var(--muted); margin:10px 0 0">
-        兼夹证普遍：人均 1.64 个证型元素。数据源：2026-3-18 房颤患者数据 · 清洗管线见知识库 model/。
-      </p>
     </section>
-
-    <section class="panel corner">
+    <section class="panel corner reveal">
       <div class="stamp">药</div>
       <h2 style="margin-top:0">心 悸 语 境 · 方 药 频 次</h2>
-      <p style="font-size:13px; color:var(--muted); margin-top:-6px">全语料 6,296 心系窗口机械统计 + 现代病例中药排行</p>
-      <h3>经典语境中药 TOP10</h3>
-      <div id="herbBars"></div>
-      <h3>方剂 TOP8（古籍语境）</h3>
-      <div id="fangBars"></div>
+      <p style="font-size:13px; color:var(--muted); margin-top:-6px">全语料 6,296 心系窗口机械统计</p>
+      <h3>中药 TOP8</h3><div id="herbBars"></div>
+      <h3>方剂 TOP6</h3><div id="fangBars"></div>
     </section>
   </div>
 
-  <div class="grid g2" style="margin-top:26px">
-    <section class="panel">
+  <div class="grid g2" style="margin-top:22px">
+    <section class="panel reveal">
       <h2 style="margin-top:0">药 对 关 联 · lift</h2>
-      <p style="font-size:13px; color:var(--muted); margin-top:-6px">关联规则挖掘（support / confidence / lift）——配伍结构量化</p>
       <table>
-        <thead><tr><th>药对</th><th>共现</th><th>support</th><th>lift</th><th>配伍意义</th></tr></thead>
+        <thead><tr><th>药对</th><th>共现</th><th>lift</th><th>配伍意义</th></tr></thead>
         <tbody id="ruleRows"></tbody>
       </table>
     </section>
-
-    <section class="panel">
+    <section class="panel reveal">
       <h2 style="margin-top:0">数 据 构 成</h2>
       <table>
         <thead><tr><th>层</th><th>内容</th><th>规模</th></tr></thead>
         <tbody id="layerRows"></tbody>
       </table>
-      <div class="warn" style="margin-top:14px">
-        ⚠️ 本站为科研与学术工具，所有内容不构成医疗建议；临床决策请遵医嘱。
-      </div>
+      <div class="warn" style="margin-top:12px">⚠️ 本站为科研与学术工具，不构成医疗建议；临床决策请遵医嘱。</div>
     </section>
   </div>
 
-  <!-- 功能入口 -->
-  <section style="margin-top:34px">
-    <h2>功 能</h2>
-    <div class="grid g4">
-      <a class="feat" href="guwen.html">
-        <div class="t">古文研习</div>
-        <div class="d">3,059 条古籍原文逐句白话——按书目/证型/关键词检索，原文-白话对照学习，条条有出处。</div>
-      </a>
-      <a class="feat" href="wenzhen.html">
-        <div class="t">智能问诊</div>
-        <div class="d">语音/表单录入，医保质控标准病历；检验报告（PDF/图）上传分析；自动生成完整诊疗方案报告。</div>
-      </a>
-      <a class="feat" href="wenda.html">
-        <div class="t">知识问答</div>
-        <div class="d">基于本地知识库检索的问答——低消耗、可溯源，答案附知识库出处页。</div>
-      </a>
-      <a class="feat" href="guwen.html#tongji">
-        <div class="t">统计模型</div>
-        <div class="d">证候-方-药机器学习模型（HGB+MLP+RF 集成）与多维统计：卡方/对应分析/关联规则。</div>
-      </a>
-    </div>
-  </section>
+  <!-- 柒 · 功能 -->
+  <div class="section-lead reveal">
+    <span class="no">柒</span><h2>功 能</h2>
+    <span class="hint">查 · 学 · 问 · 诊</span>
+  </div>
+  <div class="grid g4 reveal">
+    <a class="feat" href="guwen.html"><div class="t">古文研习</div><div class="d">3,059 条古籍原文逐句白话——按书目/证型/关键词检索，条条有出处。</div></a>
+    <a class="feat" href="wenzhen.html"><div class="t">智能问诊</div><div class="d">语音/表单录入，医保质控标准病历；报告上传分析；完整诊疗方案自动生成。</div></a>
+    <a class="feat" href="wenda.html"><div class="t">知识问答</div><div class="d">本地知识库检索式问答——低消耗、可溯源，答案附知识库出处页。</div></a>
+    <a class="feat" href="guwen.html#tongji"><div class="t">统计模型</div><div class="d">证候-方-药机器学习模型与多维统计：卡方/对应分析/关联规则。</div></a>
+  </div>
 
   <footer>
     <div>数据来源：中医古籍 717 部 ·《心悸》三审稿（中国中医科学院 张华敏主编）· 现代文献 171 篇 · 真实世界病例 5,850 例。</div>
-    <div style="margin-top:6px">知识库构建：2026 · xinji.wiki —— 中西医结合治疗心房颤动研究知识库 · 古方剂量仅供文献检索，临床应用遵医嘱。</div>
+    <div style="margin-top:6px">xinji.wiki —— 中西医结合治疗心房颤动研究知识库 · 古方剂量仅供文献检索，临床应用遵医嘱。</div>
   </footer>
 </div>
 
 <script src="data/kb_stats.js"></script>
 <script src="data/model_priors.js"></script>
+<script src="data/zhiliao_data.js"></script>
+<script src="data/guwen_index.js"></script>
 <script>
-// —— 知识看板 ——
+/* ═══ 壹 · 每日一条 ═══ */
+const G = window.GUWEN || [];
+const daySeed = Math.floor(Date.now()/86400000);
+let dailyIdx = daySeed % Math.max(1, G.length);
+function drawDaily(){
+  const d = G[dailyIdx % G.length];
+  document.getElementById("dailyQ").textContent = `「${(d.原文||"").slice(0,120)}」`;
+  document.getElementById("dailyB").textContent = "白话：" + (d.白话||"").slice(0,110);
+  document.getElementById("dailyS").textContent = "—— " + (d.source||"").split("｜").slice(-1)[0];
+}
+function nextDaily(){ dailyIdx++; drawDaily(); }
+drawDaily();
+
+/* ═══ 贰 · 五行藏象盘 ═══ */
+const WX = {
+  "木": {季:"春 · 东风", link:"肝木扰心——怒伤肝，肝气上逆扰心神（《素问》：悲哀愁忧则心动）。临床：情志诱发心悸、脉弦。", syn:"心虚胆怯 / 肝郁气滞", attrs:"肝（胆）｜味酸｜色苍（青）｜志怒"},
+  "火": {季:"夏 · 南热", link:"本库之主——心主血脉、藏神。心悸病位核心：《素问》心主夏、心苦缓急食酸以收之；《伤寒论》177 条脉结代心动悸。", syn:"全部七证型皆系于心", attrs:"心（小肠）｜味苦｜色赤｜志喜（过喜伤心）"},
+  "土": {季:"长夏 · 中湿", link:"脾为气血生化之源——心脾两虚则血不养心（归脾汤法）。临床：乏力纳呆、面色无华型心悸最多（902 例）。", syn:"心脾两虚", attrs:"脾（胃）｜味甘｜色黄｜志思（思伤脾）"},
+  "金": {季:"秋 · 西燥", link:"肺朝百脉、主治节——肺气虚则宗气不足，心脉失助（张锡纯大气下陷致怔忡）。临床：气短喘憋型心悸。", syn:"气虚 / 心肺两虚", attrs:"肺（大肠）｜味辛｜色白｜志悲（悲伤肺）"},
+  "水": {季:"冬 · 北寒", link:"心肾相交——水亏则火旺（阴虚火旺），水停则凌心（水饮凌心=心衰表型，BNP 最高）。心病禁咸（《灵枢·五味》）。", syn:"阴虚火旺 / 水饮凌心", attrs:"肾（膀胱）｜味咸｜色黑｜志恐（恐伤肾）"}
+};
+function pickWx(k){
+  const w = WX[k];
+  document.querySelectorAll(".wx-node").forEach(n=>{
+    n.classList.toggle("dim", n.dataset.wx!==k && n.dataset.wx!=="火");
+    n.classList.toggle("hot", n.dataset.wx===k);
+  });
+  document.getElementById("wxInfo").innerHTML = `
+    <div class="big-char">${k}</div>
+    <div style="font-size:13px; color:var(--muted); letter-spacing:.24em">${w.季}</div>
+    <dl>
+      <dt>藏象</dt><dd>${w.attrs}</dd>
+      <dt>心悸关联</dt><dd>${w.link}</dd>
+      <dt>对应证型</dt><dd><b style="color:var(--zhu-deep)">${w.syn}</b></dd>
+    </dl>`;
+}
+pickWx("火");
+
+/* ═══ 叁 · 证型罗盘 ═══ */
+const Z = (window.ZHILIAO||{}).zhiliao || {};
+const SYN_PCT = {"心脾两虚":"902 例","心虚胆怯":"关联最强","阴虚火旺":"176 例","心阳不振":"101 例","水饮凌心":"BNP 最高","心脉瘀阻":"D-二聚体最高","痰火扰心":"407 例"};
+function drawSynList(){
+  document.getElementById("synList").innerHTML = Object.keys(Z).map((k,i)=>
+    `<div class="syn-item${i===0?' on':''}" onclick="pickSyn('${k}',this)">${k}<span class="pct">${SYN_PCT[k]||""}</span></div>`).join("");
+}
+function pickSyn(k, el){
+  document.querySelectorAll(".syn-item").forEach(x=>x.classList.remove("on"));
+  if(el) el.classList.add("on");
+  const z = Z[k]||{};
+  document.getElementById("synDetail").innerHTML = `
+    <h3>${k} 证</h3>
+    <table>
+      <tr><th>治法</th><td>${z["治法"]||""}</td></tr>
+      <tr><th>方剂</th><td>${z["方剂"]||""}</td></tr>
+      <tr><th>代茶饮</th><td>${z["代茶饮"]||""}</td></tr>
+      <tr><th>针灸</th><td>${z["针灸"]||""}</td></tr>
+      <tr><th>中成药</th><td>${z["中成药"]||""}</td></tr>
+      <tr><th>中医风险</th><td>${z["风险_中医"]||""}</td></tr>
+      <tr><th>西医风险</th><td>${z["风险_西医"]||""}</td></tr>
+      <tr><th>调养</th><td>${z["调养"]||""}</td></tr>
+      <tr><th>复诊</th><td>${z["复诊"]||""}</td></tr>
+    </table>
+    <div style="margin-top:10px"><a href="wenzhen.html">→ 到智能问诊生成完整病历报告</a></div>`;
+}
+drawSynList();
+pickSyn(Object.keys(Z)[0]||"心虚胆怯", document.querySelector(".syn-item"));
+
+/* ═══ 肆 · 脉象四辨（两轴：快慢 × 自还） ═══ */
+const PULSES = [
+  {zh:"结脉", ax:"迟而时一止 · 能自还", desc:"脉来缓，时一止复来——停跳后能自行恢复节律。《伤寒论》178 条：结，阴也。", map:"↔ 窦缓伴早搏、二度Ⅰ型房室传导阻滞——预后相对较好（结生）"},
+  {zh:"代脉", ax:"动而中止 · 不能自还", desc:"脉动中止后不能自还、良久复动。178 条：代，阴也，得此脉者必难治。", map:"↔ 联律性早搏、高度房室传导阻滞——脏气虚衰（代死，预后差）"},
+  {zh:"促脉", ax:"数而时一止 · 无定数", desc:"脉来数、时一止复来——阳热亢盛、气血痰食郁滞。", map:"↔ 快速型房颤/房扑伴差异传导——促=快速型不齐"},
+  {zh:"涩脉", ax:"细而迟短 · 往来艰", desc:"脉细而迟、往来艰涩——血少精伤、气滞血瘀。", map:"↔ 低搏出量、微循环差（心衰/血瘀表型）——涩=低排"}
+];
+document.getElementById("pulseGrid").innerHTML = PULSES.map(p=>`
+  <div class="pulse-card">
+    <div class="zh">${p.zh}</div>
+    <div class="ax">${p.ax}</div>
+    <div class="desc">${p.desc}</div>
+    <div class="map">${p.map}</div>
+  </div>`).join("");
+
+/* ═══ 伍 · 经络流注 ═══ */
+const MER = [
+  ["手少阴心经","心系本经——是动则病心痛、是主心所生病者心悸。神门（原穴）、通里（络穴）为治悸要穴。"],
+  ["手厥阴心包经","心之外卫——内关（络穴/八脉交会）宽胸定悸，为心悸针灸第一要穴。"],
+  ["手太阳小肠经","心之腑经——与心相表里，心火下移小肠则尿赤涩；小肠气滞上逆可悸。"],
+  ["足少阴肾经","心肾相交之径——太溪滋水涵火；肾水上凌则心下悸（真武汤证）。"],
+  ["足太阴脾经","气血生化——三阴交、足三里培土养心（归脾法）。"],
+  ["任脉","阴脉之海——膻中（气会）宽胸理气，气海补元气。"],
+  ["督脉","阳脉之海——大椎、至阳通阳复脉（心阳不振）。"]
+];
+function drawMer(){
+  document.getElementById("merStrip").innerHTML = MER.map((m,i)=>
+    `<div class="mer-chip${i===0?' on':''}" onclick="pickMer(${i},this)">${m[0]}</div>`).join("");
+}
+function pickMer(i, el){
+  document.querySelectorAll(".mer-chip").forEach(x=>x.classList.remove("on"));
+  if(el) el.classList.add("on");
+  document.getElementById("merInfo").innerHTML = `<b style="letter-spacing:.14em">${MER[i][0]}</b> —— ${MER[i][1]}`;
+}
+drawMer(); pickMer(0, document.querySelector(".mer-chip"));
+
+/* ═══ 陆 · 看板数据 ═══ */
 const S = window.KB_STATS || {};
 const stats = [
   ["古籍蒸馏", S["古籍蒸馏"] ? S["古籍蒸馏"]["蒸馏卡"] + S["古籍蒸馏"]["条文注释页"] : 528, "部书卡+条文注释页", "全库 701 部 · 642 部关键词命中"],
   ["逐句翻译", S["三审稿逐句翻译"] ? S["三审稿逐句翻译"]["条"] : 3177, "条古文白话对照", "《心悸》三审稿 · 66 页全覆盖"],
-  ["现代文献", 171, "篇结构化文献页", "英文 116 + 中医 55 · 全文图表入录"],
-  ["真实病例", 5850, "例就诊记录", "697 字段 · 18 证型类 · 23 检验指标"],
-  ["统计方法", 21, "套统计工具", "每日 16:00 自学习 · 推荐器+分析器"],
-  ["机器学习模型", 17, "类证型分类", "108 特征 · 集成 CV 0.178 · BNP 主导"],
+  ["现代文献", 171, "篇结构化文献页", "英文 116 + 中医 55"],
+  ["真实病例", 5850, "例就诊记录", "697 字段 · 18 证型类"],
+  ["统计方法", 21, "套统计工具", "每日 16:00 自学习"],
+  ["机器学习模型", 17, "类证型分类", "108 特征 · CV 0.178 · BNP 主导"]
 ];
 document.getElementById("stats").innerHTML = stats.map(([l,n,u,s])=>
   `<div class="stat"><div class="num">${n.toLocaleString()}</div><div class="lbl">${l}</div><div class="sub">${u}｜${s}</div></div>`).join("");
 
-// 证型分布（真实病例清洗后）
-const syn = [["气虚血瘀",1056],["气虚",902],["气阴两虚",715],["痰瘀互结",470],["痰热",407],["风痰",207],["阴虚",176],["气滞血瘀",168],["血瘀",160],["痰浊",138],["湿热",125],["阳虚",101]];
-function bars(el, arr, color){
+function bars(el, arr){
   const max = Math.max(...arr.map(x=>x[1]));
   document.getElementById(el).innerHTML = arr.map(([t,v])=>
     `<div class="bar"><div class="t">${t}</div><div class="track"><div class="fill" style="width:${(v/max*100).toFixed(1)}%"></div></div><div class="v">${v.toLocaleString()}</div></div>`).join("");
 }
-bars("synBars", syn);
+bars("synBars", [["气虚血瘀",1056],["气虚",902],["气阴两虚",715],["痰瘀互结",470],["痰热",407],["风痰",207],["阴虚",176],["气滞血瘀",168],["血瘀",160],["痰浊",138],["湿热",125],["阳虚",101]]);
 const P = window.MODEL_PRIORS || {};
-const herb = Object.entries(P.herb_ctx_top || {}).slice(0,10);
-bars("herbBars", herb);
-bars("fangBars", [["归脾汤",329],["温胆汤",186],["补中益气汤",185],["真武汤",180],["五苓散",156],["炙甘草汤",155],["逍遥散",155],["小建中汤",148]]);
+bars("herbBars", Object.entries(P.herb_ctx_top || {}).slice(0,8));
+bars("fangBars", [["归脾汤",329],["温胆汤",186],["补中益气汤",185],["真武汤",180],["五苓散",156],["炙甘草汤",155]]);
 
-const RULE_MEANING = {"茯神+远志":"安神核心药对","当归+远志":"养血安神","人参+远志":"益气安神","甘草+茯苓":"健脾宁心基础对","人参+甘草":"益气基础对","人参+茯苓":"益气健脾","半夏+茯苓":"化痰蠲饮","白术+茯苓":"健脾利水","人参+当归":"益气养血","人参+茯神":"益气安神","当归+茯苓":"养血健脾","甘草+白术":"益气健脾","当归+甘草":"养血和中","半夏+甘草":"化痰和中"};
-const rules = (P.herb_rules_top || []).slice(0,10);
-document.getElementById("ruleRows").innerHTML = rules.map(r=>{
+const RULE_MEANING = {"茯神+远志":"安神核心药对","当归+远志":"养血安神","人参+远志":"益气安神","甘草+茯苓":"健脾宁心基础对","人参+甘草":"益气基础对","人参+茯苓":"益气健脾","半夏+茯苓":"化痰蠲饮","白术+茯苓":"健脾利水","人参+当归":"益气养血","人参+茯神":"益气安神"};
+document.getElementById("ruleRows").innerHTML = (P.herb_rules_top||[]).slice(0,8).map(r=>{
   const k = r.pair.join("+");
-  return `<tr><td>${k}</td><td>${r.co}</td><td>${r.support}</td><td><b>${r.lift}</b></td><td>${RULE_MEANING[k]||"配伍结构"}</td></tr>`;
+  return `<tr><td>${k}</td><td>${r.co}</td><td><b>${r.lift}</b></td><td>${RULE_MEANING[k]||"配伍结构"}</td></tr>`;
 }).join("");
 
-const layers = [
+document.getElementById("layerRows").innerHTML = [
   ["古籍层","蒸馏卡 473 · 条文注释 55 · 维度 13 · 关键词地图 642 部","541+ 页"],
   ["专书层","《心悸》三审稿逐句翻译（原文→白话→注释→关联）","3,177 条"],
-  ["文献层","现代 RCT/队列/指南（入排标准+终点定义+关联分析）","171 篇"],
-  ["病例层","真实世界房颤数据（清洗+多维统计+ML 建模）","5,850 例"],
-  ["分析层","definitions 六轴 · pathways 10 · comparisons · statistics","40+ 页"],
-];
-document.getElementById("layerRows").innerHTML = layers.map(([a,b,c])=>`<tr><td>${a}</td><td>${b}</td><td>${c}</td></tr>`).join("");
+  ["文献层","现代 RCT/队列/指南（入排标准+终点定义）","171 篇"],
+  ["病例层","真实世界房颤数据（清洗+多维统计+ML）","5,850 例"],
+  ["分析层","definitions 六轴 · pathways 10 · comparisons · statistics","40+ 页"]
+].map(([a,b,c])=>`<tr><td>${a}</td><td>${b}</td><td>${c}</td></tr>`).join("");
+
+/* ═══ 滚动显现 ═══ */
+const io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) e.target.classList.add("in"); }), {threshold:.08});
+document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
 </script>
 </body>
 </html>
