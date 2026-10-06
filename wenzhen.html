@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>智能问诊 · xinji.wiki</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <a class="brand" href="index.html"><span class="seal">悸</span>心 悸 · xinji.wiki</a>
+    <nav class="nav">
+      <a href="index.html">知识看板</a>
+      <a href="guwen.html">古文研习</a>
+      <a href="wenzhen.html" class="on">智能问诊</a>
+      <a href="wenda.html">知识问答</a>
+    </nav>
+  </div>
+</div>
+
+<div class="wrap">
+  <header style="padding:36px 0 16px">
+    <div class="kicker">智 能 问 诊 · 标 准 病 历 · 方 案 生 成</div>
+    <h1 class="big" style="letter-spacing:.2em">望 闻 问 切</h1>
+    <p style="color:var(--ink-2); max-width:780px">
+      按《中医病历书写基本规范》（国中医药医政发〔2010〕29 号）结构录入——支持语音输入、检验检查报告上传（PDF/JPG/PNG 多文件），
+      自动生成含病因病机（经典出处）、四诊解析、检验解读、治疗方案、风险预警、调养与复诊计划的标准化病历报告。
+    </p>
+    <div class="warn">⚠️ 本模块为科研辅助工具，生成内容不构成医疗建议；病历用于研究存档时请脱敏，临床执业遵医嘱。</div>
+  </header>
+
+  <div class="grid g2" style="align-items:start">
+    <!-- 录入 -->
+    <section class="panel">
+      <h2 style="margin-top:0">病 历 录 入</h2>
+
+      <h3>一、一般项目</h3>
+      <div class="grid" style="grid-template-columns:1fr 1fr 1fr; gap:10px">
+        <div><label>姓名</label><input type="text" id="name" placeholder="（研究用代号）"></div>
+        <div><label>性别</label><select id="sex"><option>男</option><option>女</option></select></div>
+        <div><label>年龄</label><input type="number" id="age" placeholder="岁"></div>
+        <div><label>就诊日期</label><input type="text" id="date"></div>
+        <div><label>科别</label><input type="text" id="dept" value="心内科（中医）"></div>
+        <div><label>节气</label><input type="text" id="jieqi" placeholder="如：霜降"></div>
+      </div>
+
+      <h3>二、主诉 <button class="btn ghost" style="padding:3px 12px; font-size:12px" onclick="voice('chief')">🎙 语音</button></h3>
+      <input type="text" id="chief" placeholder="症状+持续时间，如：心悸反复发作 2 年，加重伴胸闷 1 周">
+      <div id="voiceStatus" style="font-size:12.5px; color:var(--muted)"></div>
+
+      <h3>三、现病史 <button class="btn ghost" style="padding:3px 12px; font-size:12px" onclick="voice('hpi')">🎙 语音</button></h3>
+      <textarea id="hpi" rows="4" placeholder="起病情况、主要症状特点（部位/性质/程度/时间/加重缓解因素）、伴随症状、诊治经过、刻下症"></textarea>
+
+      <h3>四、四诊信息</h3>
+      <div class="grid g3" style="gap:12px">
+        <div>
+          <label>舌象</label>
+          <select id="tongue_color"><option>淡红</option><option>淡白</option><option>红</option><option>暗红</option><option>紫暗</option></select>
+          <select id="tongue_coat" style="margin-top:6px"><option>薄白</option><option>白腻</option><option>黄腻</option><option>少苔</option><option>剥苔</option><option>厚腻</option></select>
+        </div>
+        <div>
+          <label>脉象</label>
+          <select id="pulse"><option>细</option><option>弱</option><option>结代</option><option>促</option><option>数</option><option>迟</option><option>弦</option><option>滑</option><option>涩</option><option>弦滑</option></select>
+        </div>
+        <div>
+          <label>生命体征</label>
+          <input type="text" id="vitals" placeholder="T/P/BP/R（心率 心律必记）">
+        </div>
+      </div>
+      <label>症状勾选（用于证型辅助判定）</label>
+      <div id="syms" style="margin:4px 0"></div>
+
+      <h3>五、既往史 / 过敏史</h3>
+      <textarea id="history" rows="2" placeholder="高血压/糖尿病/房颤史/手术史/过敏史等"></textarea>
+
+      <h3>六、检验检查报告上传</h3>
+      <input type="file" id="files" multiple accept=".pdf,.jpg,.jpeg,.png">
+      <div style="font-size:12.5px; color:var(--muted); margin:4px 0">支持 PDF / JPG / PNG 多文件。上传后在下方粘贴或补充报告文字以便解析（浏览器端不发送任何数据）。</div>
+      <div id="fileList" style="margin:6px 0"></div>
+      <textarea id="reportText" rows="3" placeholder="粘贴检验报告文字，如：BNP 1250 pg/mL，EF 45%，D-二聚体 1.8 mg/L，左房内径 42mm……"></textarea>
+      <button class="btn ghost" onclick="parseReport()">解 析 报 告</button>
+      <div id="labs" style="margin-top:8px"></div>
+
+      <h3>七、医师意见（可编辑）</h3>
+      <textarea id="doctorNote" rows="2" placeholder="补充辨证要点/医师签名意见"></textarea>
+
+      <div style="margin:18px 0">
+        <button class="btn" onclick="generate()">生 成 标 准 病 历 报 告</button>
+        <button class="btn ghost" onclick="window.print()">打 印 / 导 出 PDF</button>
+        <button class="btn ghost" onclick="downloadMd()">下 载 Markdown</button>
+      </div>
+    </section>
+
+    <!-- 报告 -->
+    <section class="panel corner" id="reportPanel">
+      <div class="stamp">案</div>
+      <h2 style="margin-top:0">标 准 病 历 · 诊 疗 报 告</h2>
+      <div id="report" style="font-size:14.5px">
+        <p style="color:var(--muted)">填写左侧信息后点击「生成标准病历报告」。报告结构：</p>
+        <ol style="color:var(--ink-2); line-height:2.2">
+          <li>疾病诊断（中医病名+证候 / 西医 ICD-10）</li>
+          <li>病因病机分析（含经典出处引用）</li>
+          <li>四诊信息解析</li>
+          <li>检验检查报告解读（阈值对照）</li>
+          <li>治疗方案：方剂 / 代茶饮 / 针灸 / 中成药</li>
+          <li>风险预警：中医五脏风险 + 西医指标风险（附依据）</li>
+          <li>调养方案 + 日常注意事项</li>
+          <li>复诊方案（检验检查计划）</li>
+        </ol>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <div>病历格式依据：《中医病历书写基本规范》（国中医药医政发〔2010〕29 号）·《病案管理质量控制指标（2021 年版）》·《中药处方格式及书写规范》。</div>
+  </footer>
+</div>
+
+<script src="data/model_priors.js"></script>
+<script src="data/zhiliao_data.js"></script>
+<script src="data/guwen_index.js"></script>
+<script>
+// —— 症状勾选 ——
+const SYMPTOMS = ["心悸","怔忡","惊悸","胸闷","气短","乏力","自汗","盗汗","失眠","多梦","头晕","浮肿","肢冷","畏寒","口干","烦躁","善惊","健忘","不得卧","喘促","尿少","胸痛"];
+document.getElementById("syms").innerHTML = SYMPTOMS.map(s=>
+  `<label style="display:inline-flex; align-items:center; gap:4px; margin:2px 10px 2px 0; font-size:13.5px"><input type="checkbox" class="sym" value="${s}">${s}</label>`).join("");
+document.getElementById("date").value = new Date().toISOString().slice(0,10);
+
+// —— 语音输入 ——
+function voice(field){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const el = document.getElementById(field);
+  const st = document.getElementById("voiceStatus");
+  if(!SR){ st.textContent = "⚠️ 当前浏览器不支持语音识别（建议 Chrome/Edge）；可手动输入。"; return; }
+  const r = new SR(); r.lang = "zh-CN"; r.interimResults = false;
+  st.textContent = "🎙 正在聆听……请讲话";
+  r.onresult = e => { el.value += (el.value ? "，" : "") + e.results[0][0].transcript; st.textContent = "✅ 已录入"; };
+  r.onerror = () => st.textContent = "⚠️ 语音识别中断，请手动输入";
+  r.onend = () => { if(st.textContent.startsWith("🎙")) st.textContent = ""; };
+  r.start();
+}
+
+// —— 文件上传（本地预览，不上传服务器；PDF 经 pdf.js 提取文本） ——
+let uploaded = [];
+document.getElementById("files").addEventListener("change", e=>{
+  uploaded = [...e.target.files];
+  document.getElementById("fileList").innerHTML = uploaded.map((f,i)=>{
+    const img = f.type.startsWith("image/") ? `<img src="${URL.createObjectURL(f)}" style="max-height:70px; border:1px solid var(--line); border-radius:3px; margin-right:8px">` : `<span class="tag">${f.type||"PDF"}</span>`;
+    return `<div style="margin:4px 0">${img}${esc(f.name)}（${(f.size/1024).toFixed(0)} KB）<button class="btn ghost" style="padding:2px 10px; font-size:12px; margin-left:8px" onclick="extractPdf(${i})">提取文本</button></div>`;
+  }).join("");
+});
+
+// —— pdf.js 动态加载（CDN；离线则提示粘贴） ——
+function loadPdfJs(){
+  return new Promise((resolve, reject)=>{
+    if(window.pdfjsLib) return resolve(window.pdfjsLib);
+    const s = document.createElement("script");
+    s.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+    s.onload = ()=>{
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      resolve(window.pdfjsLib);
+    };
+    s.onerror = ()=>reject(new Error("pdf.js 加载失败（离线？）"));
+    document.head.appendChild(s);
+  });
+}
+async function extractPdf(i){
+  const f = uploaded[i]; if(!f) return;
+  const st = document.getElementById("fileList");
+  if(!f.name.toLowerCase().endsWith(".pdf")){ st.innerHTML += `<div style="color:var(--muted)">图片文件暂不支持文本提取（可粘贴报告文字）。</div>`; return; }
+  try{
+    const pdfjs = await loadPdfJs();
+    const buf = await f.arrayBuffer();
+    const pdf = await pdfjs.getDocument({data: buf}).promise;
+    let text = "";
+    for(let p=1; p<=Math.min(pdf.numPages, 10); p++){
+      const page = await pdf.getPage(p);
+      const c = await page.getTextContent();
+      text += c.items.map(x=>x.str).join(" ") + "\n";
+    }
+    const ta = document.getElementById("reportText");
+    ta.value += (ta.value ? "\n" : "") + text.slice(0, 4000);
+    st.innerHTML += `<div style="color:var(--qing)">✅ 已提取 PDF 文本 ${text.length} 字——点击「解析报告」识别指标。</div>`;
+    parseReport();
+  }catch(err){
+    st.innerHTML += `<div style="color:var(--zhu)">⚠️ PDF 提取失败（${esc(err.message)}）——请粘贴报告文字。</div>`;
+  }
+}
+
+// —— 报告解析（粘贴文本 → 关键指标） ——
+let labs = {};
+function parseReport(){
+  const t = document.getElementById("reportText").value;
+  const pats = {
+    "BNP": /BNP[^0-9]{0,12}([\d.]+)/i, "NT-proBNP": /(?:NT[- ]?proBNP|proBNP)[^0-9]{0,12}([\d.]+)/i,
+    "EF": /(?:EF|射血分数)[^0-9]{0,12}([\d.]+)/i, "D-二聚体": /D[- ]?二聚体[^0-9]{0,12}([\d.]+)/i,
+    "左房内径": /左房(?:内径)?[^0-9]{0,12}([\d.]+)/i, "肌酐": /肌酐[^0-9]{0,12}([\d.]+)/i,
+    "血红蛋白": /(?:血红蛋白|Hb)[^0-9]{0,12}([\d.]+)/i, "糖化血红蛋白": /糖化血红蛋白[^0-9]{0,12}([\d.]+)/i,
+    "LDL-C": /(?:LDL|低密度脂蛋白)[^0-9]{0,12}([\d.]+)/i, "hs-CRP": /(?:超敏C|hs-?CRP)[^0-9]{0,12}([\d.]+)/i,
+    "心率": /心率[^0-9]{0,12}([\d.]+)/i
+  };
+  labs = {};
+  for(const [k,p] of Object.entries(pats)){ const m = t.match(p); if(m) labs[k] = parseFloat(m[1]); }
+  const rows = Object.entries(labs).map(([k,v])=>`<tr><td>${k}</td><td><b>${v}</b></td><td>${thresholdNote(k,v)}</td></tr>`).join("");
+  document.getElementById("labs").innerHTML = rows ? `<table><thead><tr><th>指标</th><th>值</th><th>判读</th></tr></thead><tbody>${rows}</tbody></table>` : "未解析到已知指标——可粘贴更完整的报告文本。";
+}
+function thresholdNote(k,v){
+  const T = {
+    "BNP":[100,"BNP>100 pg/mL 提示心功能不全（心衰表型关联水饮凌心——2021 核心对接篇）"],
+    "NT-proBNP":[300,"NT-proBNP>300 pg/mL 提示心功能不全"],
+    "EF":[55,"EF<55% 为降低（心阳不振/水饮凌心表型关联）"],
+    "D-二聚体":[0.5,"D-二聚体升高提示凝血激活（心脉瘀阻促凝表型）"],
+    "左房内径":[40,"左房内径>40mm 提示左房扩大（房颤基质）"],
+    "肌酐":[113,"肌酐升高需评估肾功能（用药剂量调整）"],
+    "血红蛋白":[115,"血红蛋白降低考虑血虚（心脾两虚）"],
+    "糖化血红蛋白":[6.5,"HbA1c≥6.5% 提示血糖控制不佳"],
+    "LDL-C":[3.4,"LDL-C 升高（痰瘀/动脉粥样硬化风险）"],
+    "hs-CRP":[3,"hs-CRP 升高提示炎症（痰热表型关联）"],
+    "心率":[100,"心率异常需结合心电图判读"]
+  };
+  const [th, note] = T[k] || [null, "请结合临床判读"];
+  if(th==null) return note;
+  return (v>th ? "⚠️ " : "✅ ") + note;
+}
+
+// —— 证型辅助判定（文献先验朴素评分） ——
+function guessSyndrome(){
+  const P = (window.MODEL_PRIORS||{}).PRIOR || {};
+  const picked = [...document.querySelectorAll(".sym:checked")].map(x=>x.value);
+  picked.push(...mapTonguePulse());
+  let best = null, bestScore = -1, all = [];
+  for(const [syn, feats] of Object.entries(P)){
+    let s = 0;
+    for(const f of picked){ if(feats[f]) s += feats[f]; }
+    all.push([syn, s]); if(s>bestScore){ bestScore=s; best=syn; }
+  }
+  all.sort((a,b)=>b[1]-a[1]);
+  return {best, bestScore, ranked: all.slice(0,3), picked};
+}
+function mapTonguePulse(){
+  const out = [];
+  const tc = document.getElementById("tongue_color").value, co = document.getElementById("tongue_coat").value, pu = document.getElementById("pulse").value;
+  if(tc==="淡白"||tc==="淡红") out.push("舌淡"); if(tc==="红") out.push("舌红"); if(tc==="紫暗"||tc==="暗红") out.push("舌紫暗");
+  if(co.includes("腻")) out.push("苔腻"); if(co.includes("黄")) out.push("苔黄"); if(co.includes("少")||co.includes("剥")) out.push("苔少");
+  if(pu.includes("细")) out.push("脉细"); if(pu.includes("弱")) out.push("脉弱"); if(pu.includes("结代")) out.push("脉结代");
+  if(pu.includes("促")) out.push("脉促"); if(pu.includes("数")) out.push("脉数"); if(pu.includes("迟")) out.push("脉迟");
+  if(pu.includes("弦")) out.push("脉弦"); if(pu.includes("滑")) out.push("脉滑");
+  return out;
+}
+
+// —— 经典出处检索（从本地古文库取原句） ——
+function classicCite(kw, n=2){
+  const G = window.GUWEN || [];
+  const hits = G.filter(d=>(d.原文||"").includes(kw)).slice(0,n);
+  return hits.map(d=>`「${d.原文.slice(0,80)}…」——${d.source.split("｜").slice(-1)[0]}`);
+}
+
+// —— 报告生成 ——
+function generate(){
+  parseReport();
+  const g = guessSyndrome();
+  const syn = g.best || "心虚胆怯";
+  const plan = (window.ZHILIAO||{}).zhiliao?.[syn] || {};
+  const name = document.getElementById("name").value || "（未署名）";
+  const sex = document.getElementById("sex").value, age = document.getElementById("age").value || "—";
+  const date = document.getElementById("date").value, jieqi = document.getElementById("jieqi").value || "—";
+  const chief = document.getElementById("chief").value || "心悸（待补充）";
+  const hpi = document.getElementById("hpi").value || "（待补充）";
+  const tongue = `${document.getElementById("tongue_color").value}舌，${document.getElementById("tongue_coat").value}苔`;
+  const pulse = document.getElementById("pulse").value + "脉";
+  const vitals = document.getElementById("vitals").value || "（待补充）";
+  const history = document.getElementById("history").value || "（待补充）";
+  const note = document.getElementById("doctorNote").value || "";
+  const syms = [...document.querySelectorAll(".sym:checked")].map(x=>x.value).join("、") || "—";
+  const cites = classicCite("心悸", 2).concat(classicCite("怔忡", 1));
+  const labRows = Object.entries(labs).map(([k,v])=>`<tr><td>${k}</td><td>${v}</td><td>${thresholdNote(k,v)}</td></tr>`).join("") || `<tr><td colspan="3">未上传/解析到报告数据</td></tr>`;
+
+  const html = `
+  <div class="quote" style="margin-top:0">标准化病历 · 研究用（请脱敏存档）<span class="src">生成时间 ${new Date().toLocaleString()} · 格式依据《中医病历书写基本规范》2010 版</span></div>
+
+  <h3>一、一般项目</h3>
+  <p>${esc(name)}｜${sex}｜${age} 岁｜就诊 ${date}｜节气：${esc(jieqi)}｜${esc(document.getElementById("dept").value)}</p>
+
+  <h3>二、主诉</h3><p>${esc(chief)}</p>
+
+  <h3>三、现病史</h3><p>${esc(hpi)}</p>
+
+  <h3>四、诊断</h3>
+  <table>
+    <tr><th>中医病名</th><td>心悸</td></tr>
+    <tr><th>中医证候</th><td><b>${syn}证</b>（辅助判定，置信评分 ${g.bestScore.toFixed(2)}；候选：${g.ranked.map(r=>r[0]).join(" / ")}）</td></tr>
+    <tr><th>西医诊断</th><td>心律失常（心房颤动待排）ICD-10：I48</td></tr>
+  </table>
+
+  <h3>五、病因病机分析（经典出处）</h3>
+  <p>${esc(plan["治法"]||"")} —— 证属<b>${syn}</b>。${esc(plan["风险_中医"]||"")}</p>
+  ${cites.map(c=>`<div class="quote" style="margin:8px 0">${esc(c)}</div>`).join("")}
+
+  <h3>六、四诊信息解析</h3>
+  <p>望：${tongue}；闻/问：${esc(syms)}；切：${pulse}；生命体征：${esc(vitals)}。</p>
+  <p style="font-size:13.5px; color:var(--ink-2)">证候依据：症状-舌-脉对应分析（苔腻 V=0.276 / 脉滑 V=0.257 与证型关联最强——5,850 例统计）。</p>
+
+  <h3>七、检验检查报告解读</h3>
+  <table><thead><tr><th>指标</th><th>值</th><th>判读（含依据）</th></tr></thead><tbody>${labRows}</tbody></table>
+  <p style="font-size:12.5px; color:var(--muted)">阈值依据：2026-3-18 房颤队列 5,850 例（BNP H=318 证型间差异极显著）+ 指南常规阈值。</p>
+
+  <h3>八、治疗方案</h3>
+  <table>
+    <tr><th>治法</th><td>${esc(plan["治法"]||"")}</td></tr>
+    <tr><th>方剂</th><td>${esc(plan["方剂"]||"")}<br><span style="font-size:12.5px; color:var(--muted)">用法用量遵《中国药典》，超剂量需双签名（中药处方书写规范）</span></td></tr>
+    <tr><th>代茶饮</th><td>${esc(plan["代茶饮"]||"")}</td></tr>
+    <tr><th>针灸</th><td>${esc(plan["针灸"]||"")}</td></tr>
+    <tr><th>中成药</th><td>${esc(plan["中成药"]||"")}（与饮片分方开具）</td></tr>
+  </table>
+
+  <h3>九、风险预警</h3>
+  <div class="warn danger"><b>中医五脏风险：</b>${esc(plan["风险_中医"]||"")}<br><b>西医指标风险：</b>${esc(plan["风险_西医"]||"")}</div>
+
+  <h3>十、调养方案与日常注意事项</h3>
+  <p>${esc(plan["调养"]||"")}；生活规律，忌过劳（《景岳全书》：速宜节欲节劳，切戒酒色）。</p>
+
+  <h3>十一、复诊方案</h3>
+  <p>${esc(plan["复诊"]||"")}；建议 2 周复诊，携带既往检查资料。${note?"<br><b>医师意见：</b>"+esc(note):""}</p>
+
+  <div class="warn" style="margin-top:14px">⚠️ 本报告由 xinji.wiki 生成，仅供研究参考，不构成医疗建议；用药与检查请遵医嘱。</div>`;
+
+  document.getElementById("report").innerHTML = html;
+  window._reportText = html;
+}
+
+function downloadMd(){
+  const el = document.getElementById("report");
+  const md = el.innerText;
+  const blob = new Blob([`# 标准病历报告\n\n${md}\n\n---\n⚠️ 本报告仅供研究参考，不构成医疗建议。\n`], {type:"text/markdown"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = `心悸病历_${document.getElementById("date").value}.md`; a.click();
+}
+function esc(t){ return (t||"").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+</script>
+</body>
+</html>

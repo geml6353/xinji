@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>古文研习 · xinji.wiki</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <a class="brand" href="index.html"><span class="seal">悸</span>心 悸 · xinji.wiki</a>
+    <nav class="nav">
+      <a href="index.html">知识看板</a>
+      <a href="guwen.html" class="on">古文研习</a>
+      <a href="wenzhen.html">智能问诊</a>
+      <a href="wenda.html">知识问答</a>
+    </nav>
+  </div>
+</div>
+
+<div class="wrap">
+  <header style="padding:40px 0 18px">
+    <div class="kicker">古 文 查 询 与 学 习</div>
+    <h1 class="big" style="letter-spacing:.2em">古 文 研 习</h1>
+    <p style="color:var(--ink-2); max-width:760px">
+      3,059 条古籍原文逐句白话对照——涵盖《伤寒论》《金匮要略》《黄帝内经》等 700 余部医籍心悸条文与《心悸》三审稿全书翻译。
+      检索关键词、书名、证型；点击卡片展开注释与关联。
+    </p>
+    <div class="quote">「心主身之血脉。」<span class="src">——《素问·痿论》</span></div>
+  </header>
+
+  <section class="panel" style="padding:18px 22px">
+    <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:end">
+      <div style="flex:2; min-width:240px">
+        <label for="q">检索（原文/白话/书名）</label>
+        <input type="text" id="q" placeholder="如：炙甘草汤 / 脉结代 / 怔忡 / 伤寒论 / 归脾汤">
+      </div>
+      <div style="flex:1; min-width:170px">
+        <label for="src">书目/来源筛选</label>
+        <select id="src"><option value="">全部来源</option></select>
+      </div>
+      <button class="btn" onclick="render()">检 索</button>
+      <button class="btn ghost" onclick="randomOne()">随 机 一 条</button>
+    </div>
+    <div style="margin-top:10px">
+      <span class="tag zhu">热词</span>
+      <a class="tag" href="#" onclick="quick('心动悸')">心动悸</a>
+      <a class="tag" href="#" onclick="quick('脉结代')">脉结代</a>
+      <a class="tag" href="#" onclick="quick('怔忡')">怔忡</a>
+      <a class="tag" href="#" onclick="quick('心下悸')">心下悸</a>
+      <a class="tag" href="#" onclick="quick('惊悸')">惊悸</a>
+      <a class="tag" href="#" onclick="quick('温胆汤')">温胆汤</a>
+      <a class="tag" href="#" onclick="quick('归脾')">归脾</a>
+      <a class="tag" href="#" onclick="quick('痰')">痰</a>
+      <a class="tag" href="#" onclick="quick('瘀')">瘀</a>
+    </div>
+  </section>
+
+  <div style="margin:16px 0; color:var(--muted); font-size:14px">
+    共 <b id="count">0</b> 条 · 每页 20 条 · <span id="pageinfo"></span>
+    <span style="float:right">
+      <button class="btn ghost" style="padding:5px 14px" onclick="prevPage()">上一页</button>
+      <button class="btn ghost" style="padding:5px 14px" onclick="nextPage()">下一页</button>
+      <button class="btn ghost" style="padding:5px 14px" onclick="toggleBai()">文白对照 / 仅原文</button>
+    </span>
+  </div>
+
+  <div id="list"></div>
+
+  <!-- 学习辅助 -->
+  <section style="margin-top:36px">
+    <h2>学 习 专 题</h2>
+    <div class="grid g3">
+      <div class="panel"><h3 style="margin-top:0">结代脉辨</h3>
+        <p style="font-size:14px; color:var(--ink-2)">结脉=停跳后能自还（预后较好）；代脉=不能自还（脏气衰、难治）。178 条经典定义 →
+        <a href="#" onclick="quick('结代')">检索「结代」条文 →</a></p></div>
+      <div class="panel"><h3 style="margin-top:0">炙甘草汤源流</h3>
+        <p style="font-size:14px; color:var(--ink-2)">177 条原方 → 吴鞠通加减复脉汤 → 现代养心定悸汤 RCT。→
+        <a href="#" onclick="quick('炙甘草汤')">检索条文 →</a></p></div>
+      <div class="panel"><h3 style="margin-top:0">惊悸与怔忡</h3>
+        <p style="font-size:14px; color:var(--ink-2)">「惊为触发、悸为基质」；怔忡无时、惊悸有时（《古今名医汇粹》）。→
+        <a href="#" onclick="quick('怔忡')">检索条文 →</a></p></div>
+    </div>
+  </section>
+
+  <section id="tongji" style="margin-top:36px">
+    <h2>统 计 模 型 摘 要</h2>
+    <div class="grid g2">
+      <div class="panel">
+        <h3 style="margin-top:0">多维统计（5,850 例）</h3>
+        <table>
+          <tr><td>证型×苔腻（Cramér's V）</td><td><b>0.276</b>（p&lt;2e-84）</td></tr>
+          <tr><td>证型×脉滑</td><td><b>0.257</b></td></tr>
+          <tr><td>BNP 差异（Kruskal H）</td><td><b>318.3</b>（p&lt;2e-57）</td></tr>
+          <tr><td>hs-CRP / 左房内径 / EF</td><td>216 / 175 / 148（均 p 极小）</td></tr>
+          <tr><td>对应分析前 3 维惯量</td><td>76.2%</td></tr>
+        </table>
+      </div>
+      <div class="panel">
+        <h3 style="margin-top:0">机器学习模型</h3>
+        <table>
+          <tr><td>架构</td><td>HistGB + MLP(256-128-64) + RF 软投票</td></tr>
+          <tr><td>任务</td><td>17 类证型分类 · 108 特征</td></tr>
+          <tr><td>CV balanced accuracy</td><td><b>0.1784</b>（基线）</td></tr>
+          <tr><td>首要特征</td><td>BNP 0.117 · hs-CRP 0.075 · 胸闷 · 苔腻 · 脉弦</td></tr>
+        </table>
+        <p style="font-size:12.5px; color:var(--muted)">模型仅供研究，输出不构成医疗建议。</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div>古文条目来源：中医古籍 717 部（中华医典/国医典藏）·《心悸》三审稿逐句翻译工程。原文照录，白话忠实，剂量仅供文献检索。</div>
+  </footer>
+</div>
+
+<script src="data/guwen_index.js"></script>
+<script>
+const DATA = window.GUWEN || [];
+let page = 0, showBai = true, filtered = DATA;
+const PER = 20;
+
+// 来源下拉（取前 60 个书名）
+const srcs = [...new Set(DATA.map(d=>d.source.split("｜")[0].replace(/^条\d+$/,"").trim()))].filter(s=>s.length>1).slice(0,80);
+document.getElementById("src").innerHTML += srcs.map(s=>`<option value="${s}">${s}</option>`).join("");
+
+function render(){
+  const q = document.getElementById("q").value.trim();
+  const s = document.getElementById("src").value;
+  filtered = DATA.filter(d=>{
+    const okQ = !q || (d.原文+d.白话+d.source).includes(q);
+    const okS = !s || d.source.includes(s);
+    return okQ && okS;
+  });
+  page = 0; draw();
+}
+function draw(){
+  const total = filtered.length;
+  const pages = Math.max(1, Math.ceil(total/PER));
+  page = Math.min(page, pages-1);
+  document.getElementById("count").textContent = total.toLocaleString();
+  document.getElementById("pageinfo").textContent = `第 ${page+1} / ${pages} 页`;
+  const slice = filtered.slice(page*PER, (page+1)*PER);
+  document.getElementById("list").innerHTML = slice.map(d=>`
+    <div class="gw">
+      <div class="s">「${esc(d.source)}」</div>
+      <div class="o">${esc(d.原文)}</div>
+      ${showBai ? `<div class="b">${esc(d.白话)}</div>` : ""}
+    </div>`).join("") || `<div class="panel">未检索到条目。</div>`;
+}
+function esc(t){ return (t||"").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function nextPage(){ page++; draw(); window.scrollTo({top:200,behavior:"smooth"}); }
+function prevPage(){ page--; if(page<0)page=0; draw(); }
+function toggleBai(){ showBai=!showBai; draw(); }
+function quick(t){ document.getElementById("q").value=t; render(); return false; }
+function randomOne(){ filtered = [DATA[Math.floor(Math.random()*DATA.length)]]; page=0; draw(); }
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>知识问答 · xinji.wiki</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <a class="brand" href="index.html"><span class="seal">悸</span>心 悸 · xinji.wiki</a>
+    <nav class="nav">
+      <a href="index.html">知识看板</a>
+      <a href="guwen.html">古文研习</a>
+      <a href="wenzhen.html">智能问诊</a>
+      <a href="wenda.html" class="on">知识问答</a>
+    </nav>
+  </div>
+</div>
+
+<div class="wrap">
+  <header style="padding:40px 0 16px">
+    <div class="kicker">知 识 问 答 · 本 地 知 识 库 检 索</div>
+    <h1 class="big" style="letter-spacing:.2em">知 识 问 答</h1>
+    <p style="color:var(--ink-2); max-width:760px">
+      基于本地知识库（证型/方剂/维度/定义/路径/统计/模型页 + 3,059 条古文）检索作答——答案附知识库出处，可溯源、低消耗。
+    </p>
+    <div class="quote">「上工治未病，不治已病。」<span class="src">——《素问·四气调神大论》</span></div>
+  </header>
+
+  <section class="panel" style="padding:18px 22px">
+    <div style="display:flex; gap:12px; align-items:end; flex-wrap:wrap">
+      <div style="flex:1; min-width:260px">
+        <label for="ask">提问</label>
+        <input type="text" id="ask" placeholder="如：水饮凌心怎么判断？归脾汤治什么？房颤患者为什么要查 BNP？结代脉是什么？">
+      </div>
+      <button class="btn" onclick="answer()">发 问</button>
+    </div>
+    <div style="margin-top:10px">
+      <span class="tag zhu">常问</span>
+      <a class="tag" href="#" onclick="qa('心虚胆怯有什么表现？')">心虚胆怯</a>
+      <a class="tag" href="#" onclick="qa('归脾汤主治什么？')">归脾汤</a>
+      <a class="tag" href="#" onclick="qa('结代脉怎么区分？')">结代脉</a>
+      <a class="tag" href="#" onclick="qa('水饮凌心和心衰有什么关系？')">水饮凌心</a>
+      <a class="tag" href="#" onclick="qa('房颤的中医证型有哪些？')">证型</a>
+      <a class="tag" href="#" onclick="qa('代茶饮推荐')">代茶饮</a>
+    </div>
+  </section>
+
+  <div id="ans" style="margin-top:18px"></div>
+
+  <section style="margin-top:30px">
+    <h2>知 识 库 地 图</h2>
+    <div class="grid g3" id="map"></div>
+  </section>
+
+  <footer>
+    <div>问答为知识库检索式作答（非生成式大模型），每条答案附出处页名；如需深度内容，请到「古文研习」检索原文。</div>
+  </footer>
+</div>
+
+<script src="data/qa_index.js"></script>
+<script src="data/guwen_index.js"></script>
+<script>
+const QA = window.QA_INDEX || [];
+const G = window.GUWEN || [];
+
+function answer(){
+  const q = document.getElementById("ask").value.trim();
+  if(!q){ return; }
+  // 打分：关键词命中（标题>关键词>正文）
+  const chars = [...new Set(q.replace(/[？?。，,、的什么是怎么治有什么为什么和与]/g,"").match(/[\u4e00-\u9fff]{2,}/g) || [])].flatMap(w=>[...new Set((w.match(/[\u4e00-\u9fff]{2}/g)||[]).concat([w]))]);
+  const scored = QA.map(d=>{
+    let s = 0;
+    for(const w of chars){
+      if(d.title.includes(w)) s += 5;
+      if((d.keywords||[]).some(k=>k.includes(w)||w.includes(k))) s += 3;
+      if(d.answer.includes(w)) s += 1;
+    }
+    return [d, s];
+  }).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,3);
+
+  // 古文佐证
+  const gHits = G.filter(d=>chars.some(w=>(d.原文||"").includes(w))).slice(0,2);
+
+  const cards = scored.map(([d,s])=>`
+    <div class="panel" style="margin:10px 0">
+      <div style="font-size:13px; color:var(--zhu-deep); letter-spacing:.12em">出处 · ${esc(d.page)}（相关度 ${s}）</div>
+      <h3 style="margin:6px 0">${esc(d.title)}</h3>
+      <p style="color:var(--ink-2)">${esc(d.answer)}</p>
+      <div>${(d.keywords||[]).slice(0,8).map(k=>`<span class="tag">${esc(k)}</span>`).join("")}</div>
+    </div>`).join("");
+
+  const gCard = gHits.length ? `
+    <div class="panel" style="margin:10px 0">
+      <h3 style="margin-top:0">古籍佐证</h3>
+      ${gHits.map(d=>`<div class="gw"><div class="s">「${esc(d.source)}」</div><div class="o">${esc(d.原文)}</div><div class="b">${esc(d.白话)}</div></div>`).join("")}
+    </div>` : "";
+
+  document.getElementById("ans").innerHTML = `
+    <h2>答</h2>
+    ${cards || `<div class="panel">知识库暂无直接命中——试试更具体的词（证型名/方名/脉象），或到 <a href="guwen.html">古文研习</a> 检索原文。</div>`}
+    ${gCard}
+    <div class="warn">⚠️ 以上为知识库文献整理内容，不构成医疗建议。</div>`;
+}
+function qa(t){ document.getElementById("ask").value = t; answer(); return false; }
+
+// 知识库地图
+const map = [
+  ["证型七篇","心虚胆怯 / 心脾两虚 / 阴虚火旺 / 心阳不振 / 水饮凌心 / 心脉瘀阻 / 痰火扰心"],
+  ["维度十三篇","阴阳 / 五脏 / 五运六气 / 中药 / 方剂 / 证型 / 脉学 / 六经 / 气血津液 / 经络 / 病因病机 / 四诊 / 预后"],
+  ["定义六轴","医学术语 / 分级体系 / 检验检查 / 层次分级 / 统计学方法 / ICD 编码"],
+  ["诊疗路径","危险分层 / 卒中预防 / 节律管理 / 中医辨证路径等 10 篇"],
+  ["统计工具","21 套方法 + 推荐器 + 分析器（每日自学习）"],
+  ["古今证据链","炙甘草汤 177 条→RCT / 桂甘龙牡→RCT / 归脾汤 21 篇 / 十味温胆汤源流"],
+];
+document.getElementById("map").innerHTML = map.map(([t,d])=>
+  `<div class="panel"><h3 style="margin-top:0">${t}</h3><p style="font-size:13.5px; color:var(--ink-2)">${d}</p></div>`).join("");
+function esc(t){ return (t||"").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+</script>
+</body>
+</html>

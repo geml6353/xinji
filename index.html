@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>心悸 · xinji.wiki — 古今心悸知识库</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <a class="brand" href="index.html"><span class="seal">悸</span>心 悸 · xinji.wiki</a>
+    <nav class="nav">
+      <a href="index.html" class="on">知识看板</a>
+      <a href="guwen.html">古文研习</a>
+      <a href="wenzhen.html">智能问诊</a>
+      <a href="wenda.html">知识问答</a>
+    </nav>
+  </div>
+</div>
+
+<div class="wrap">
+  <header style="padding:52px 0 26px">
+    <div class="kicker">中 西 医 结 合 · 心 悸 专 病 数 据 库</div>
+    <h1 class="big">心 悸 古 今 知 识 库</h1>
+    <p style="max-width:720px; color:var(--ink-2); margin:8px 0 0">
+      汇历代医籍心悸条文、现代文献证据、真实世界病例与智能模型于一库——
+      可查、可学、可问、可诊。
+    </p>
+    <div class="quote">
+      「伤寒脉结代、心动悸，炙甘草汤主之。」
+      <span class="src">——《伤寒论》第 177 条 · 张仲景（古今证据链第一锚点：炙甘草汤 → 养心定悸汤头对头 RCT）</span>
+    </div>
+  </header>
+
+  <!-- 知识看板 -->
+  <section>
+    <h2>知 识 看 板</h2>
+    <div class="grid g4" id="stats"></div>
+  </section>
+
+  <div class="grid g2" style="margin-top:26px">
+    <section class="panel corner">
+      <div class="stamp">证</div>
+      <h2 style="margin-top:0">证 型 分 布</h2>
+      <p style="font-size:13px; color:var(--muted); margin-top:-6px">真实世界病例 5,850 例就诊 · 主证型（清洗后标准化）</p>
+      <div id="synBars"></div>
+      <p style="font-size:12.5px; color:var(--muted); margin:10px 0 0">
+        兼夹证普遍：人均 1.64 个证型元素。数据源：2026-3-18 房颤患者数据 · 清洗管线见知识库 model/。
+      </p>
+    </section>
+
+    <section class="panel corner">
+      <div class="stamp">药</div>
+      <h2 style="margin-top:0">心 悸 语 境 · 方 药 频 次</h2>
+      <p style="font-size:13px; color:var(--muted); margin-top:-6px">全语料 6,296 心系窗口机械统计 + 现代病例中药排行</p>
+      <h3>经典语境中药 TOP10</h3>
+      <div id="herbBars"></div>
+      <h3>方剂 TOP8（古籍语境）</h3>
+      <div id="fangBars"></div>
+    </section>
+  </div>
+
+  <div class="grid g2" style="margin-top:26px">
+    <section class="panel">
+      <h2 style="margin-top:0">药 对 关 联 · lift</h2>
+      <p style="font-size:13px; color:var(--muted); margin-top:-6px">关联规则挖掘（support / confidence / lift）——配伍结构量化</p>
+      <table>
+        <thead><tr><th>药对</th><th>共现</th><th>support</th><th>lift</th><th>配伍意义</th></tr></thead>
+        <tbody id="ruleRows"></tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2 style="margin-top:0">数 据 构 成</h2>
+      <table>
+        <thead><tr><th>层</th><th>内容</th><th>规模</th></tr></thead>
+        <tbody id="layerRows"></tbody>
+      </table>
+      <div class="warn" style="margin-top:14px">
+        ⚠️ 本站为科研与学术工具，所有内容不构成医疗建议；临床决策请遵医嘱。
+      </div>
+    </section>
+  </div>
+
+  <!-- 功能入口 -->
+  <section style="margin-top:34px">
+    <h2>功 能</h2>
+    <div class="grid g4">
+      <a class="feat" href="guwen.html">
+        <div class="t">古文研习</div>
+        <div class="d">3,059 条古籍原文逐句白话——按书目/证型/关键词检索，原文-白话对照学习，条条有出处。</div>
+      </a>
+      <a class="feat" href="wenzhen.html">
+        <div class="t">智能问诊</div>
+        <div class="d">语音/表单录入，医保质控标准病历；检验报告（PDF/图）上传分析；自动生成完整诊疗方案报告。</div>
+      </a>
+      <a class="feat" href="wenda.html">
+        <div class="t">知识问答</div>
+        <div class="d">基于本地知识库检索的问答——低消耗、可溯源，答案附知识库出处页。</div>
+      </a>
+      <a class="feat" href="guwen.html#tongji">
+        <div class="t">统计模型</div>
+        <div class="d">证候-方-药机器学习模型（HGB+MLP+RF 集成）与多维统计：卡方/对应分析/关联规则。</div>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <div>数据来源：中医古籍 717 部 ·《心悸》三审稿（中国中医科学院 张华敏主编）· 现代文献 171 篇 · 真实世界病例 5,850 例。</div>
+    <div style="margin-top:6px">知识库构建：2026 · xinji.wiki —— 中西医结合治疗心房颤动研究知识库 · 古方剂量仅供文献检索，临床应用遵医嘱。</div>
+  </footer>
+</div>
+
+<script src="data/kb_stats.js"></script>
+<script src="data/model_priors.js"></script>
+<script>
+// —— 知识看板 ——
+const S = window.KB_STATS || {};
+const stats = [
+  ["古籍蒸馏", S["古籍蒸馏"] ? S["古籍蒸馏"]["蒸馏卡"] + S["古籍蒸馏"]["条文注释页"] : 528, "部书卡+条文注释页", "全库 701 部 · 642 部关键词命中"],
+  ["逐句翻译", S["三审稿逐句翻译"] ? S["三审稿逐句翻译"]["条"] : 3177, "条古文白话对照", "《心悸》三审稿 · 66 页全覆盖"],
+  ["现代文献", 171, "篇结构化文献页", "英文 116 + 中医 55 · 全文图表入录"],
+  ["真实病例", 5850, "例就诊记录", "697 字段 · 18 证型类 · 23 检验指标"],
+  ["统计方法", 21, "套统计工具", "每日 16:00 自学习 · 推荐器+分析器"],
+  ["机器学习模型", 17, "类证型分类", "108 特征 · 集成 CV 0.178 · BNP 主导"],
+];
+document.getElementById("stats").innerHTML = stats.map(([l,n,u,s])=>
+  `<div class="stat"><div class="num">${n.toLocaleString()}</div><div class="lbl">${l}</div><div class="sub">${u}｜${s}</div></div>`).join("");
+
+// 证型分布（真实病例清洗后）
+const syn = [["气虚血瘀",1056],["气虚",902],["气阴两虚",715],["痰瘀互结",470],["痰热",407],["风痰",207],["阴虚",176],["气滞血瘀",168],["血瘀",160],["痰浊",138],["湿热",125],["阳虚",101]];
+function bars(el, arr, color){
+  const max = Math.max(...arr.map(x=>x[1]));
+  document.getElementById(el).innerHTML = arr.map(([t,v])=>
+    `<div class="bar"><div class="t">${t}</div><div class="track"><div class="fill" style="width:${(v/max*100).toFixed(1)}%"></div></div><div class="v">${v.toLocaleString()}</div></div>`).join("");
+}
+bars("synBars", syn);
+const P = window.MODEL_PRIORS || {};
+const herb = Object.entries(P.herb_ctx_top || {}).slice(0,10);
+bars("herbBars", herb);
+bars("fangBars", [["归脾汤",329],["温胆汤",186],["补中益气汤",185],["真武汤",180],["五苓散",156],["炙甘草汤",155],["逍遥散",155],["小建中汤",148]]);
+
+const RULE_MEANING = {"茯神+远志":"安神核心药对","当归+远志":"养血安神","人参+远志":"益气安神","甘草+茯苓":"健脾宁心基础对","人参+甘草":"益气基础对","人参+茯苓":"益气健脾","半夏+茯苓":"化痰蠲饮","白术+茯苓":"健脾利水","人参+当归":"益气养血","人参+茯神":"益气安神","当归+茯苓":"养血健脾","甘草+白术":"益气健脾","当归+甘草":"养血和中","半夏+甘草":"化痰和中"};
+const rules = (P.herb_rules_top || []).slice(0,10);
+document.getElementById("ruleRows").innerHTML = rules.map(r=>{
+  const k = r.pair.join("+");
+  return `<tr><td>${k}</td><td>${r.co}</td><td>${r.support}</td><td><b>${r.lift}</b></td><td>${RULE_MEANING[k]||"配伍结构"}</td></tr>`;
+}).join("");
+
+const layers = [
+  ["古籍层","蒸馏卡 473 · 条文注释 55 · 维度 13 · 关键词地图 642 部","541+ 页"],
+  ["专书层","《心悸》三审稿逐句翻译（原文→白话→注释→关联）","3,177 条"],
+  ["文献层","现代 RCT/队列/指南（入排标准+终点定义+关联分析）","171 篇"],
+  ["病例层","真实世界房颤数据（清洗+多维统计+ML 建模）","5,850 例"],
+  ["分析层","definitions 六轴 · pathways 10 · comparisons · statistics","40+ 页"],
+];
+document.getElementById("layerRows").innerHTML = layers.map(([a,b,c])=>`<tr><td>${a}</td><td>${b}</td><td>${c}</td></tr>`).join("");
+</script>
+</body>
+</html>
