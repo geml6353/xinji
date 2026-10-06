@@ -56,6 +56,17 @@
       <a class="tag" href="#" onclick="quick('痰')">痰</a>
       <a class="tag" href="#" onclick="quick('瘀')">瘀</a>
     </div>
+    <style>
+      .zx-row{margin-top:10px}
+      .zx-tag{background:rgba(166,56,44,.07); border-color:rgba(166,56,44,.3); color:var(--zhu-deep)}
+      details.zx{margin-top:10px; border:1px solid var(--line-2); border-radius:6px; padding:8px 14px; background:#FBF9F3}
+      details.zx summary{cursor:pointer; font-size:13px; letter-spacing:.16em; color:var(--zhu-deep)}
+      .zx-card{border-top:1px dashed var(--line-2); padding:9px 0 4px; margin-top:8px}
+      .zx-t{font-size:13.5px}
+      .zx-b{font-size:12.5px; color:var(--ink-2); line-height:1.9}
+      .zx-axis{transition:transform .18s ease, box-shadow .18s}
+      .zx-axis:hover{transform:translateY(-3px); box-shadow:0 12px 26px -18px rgba(80,50,20,.5)}
+    </style>
   </section>
 
   <div style="margin:16px 0; color:var(--muted); font-size:14px">
@@ -69,9 +80,15 @@
 
   <div id="list"></div>
 
+  <!-- 中西联动 -->
+  <section style="margin-top:36px">
+    <div class="section-lead"><span class="no">壹</span><h2>中 西 联 动</h2><span class="hint">古文术语 ↔ 现代指标 · 点卡片筛条文</span></div>
+    <div class="grid g3" id="zxGrid"></div>
+  </section>
+
   <!-- 学习辅助 -->
   <section style="margin-top:36px">
-    <div class="section-lead"><span class="no">壹</span><h2>学 习 专 题</h2><span class="hint">结代 · 源流 · 惊怔</span></div>
+    <div class="section-lead"><span class="no">贰</span><h2>学 习 专 题</h2><span class="hint">结代 · 源流 · 惊怔</span></div>
     <div class="grid g3">
       <div class="panel"><h3 style="margin-top:0">结代脉辨</h3>
         <p style="font-size:14px; color:var(--ink-2)">结脉=停跳后能自还（预后较好）；代脉=不能自还（脏气衰、难治）。178 条经典定义 →
@@ -86,7 +103,7 @@
   </section>
 
   <section id="tongji" style="margin-top:36px">
-    <div class="section-lead"><span class="no">贰</span><h2>统 计 模 型 摘 要</h2><span class="hint">5,850 例 · 多维统计</span></div>
+    <div class="section-lead"><span class="no">叁</span><h2>统 计 模 型 摘 要</h2><span class="hint">5,850 例 · 多维统计</span></div>
     <div class="grid g2">
       <div class="panel">
         <h3 style="margin-top:0">多维统计（5,850 例）</h3>
@@ -117,6 +134,7 @@
 </div>
 
 <script src="data/guwen_index.js"></script>
+<script src="data/zhongxi_map.js"></script>
 <script src="motifs.js"></script>
 <script>
 const DATA = window.GUWEN || [];
@@ -144,12 +162,51 @@ function draw(){
   document.getElementById("count").textContent = total.toLocaleString();
   document.getElementById("pageinfo").textContent = `第 ${page+1} / ${pages} 页`;
   const slice = filtered.slice(page*PER, (page+1)*PER);
-  document.getElementById("list").innerHTML = slice.map(d=>`
+  document.getElementById("list").innerHTML = slice.map((d,i)=>`
     <div class="gw">
       <div class="s">「${esc(d.source)}」</div>
       <div class="o">${esc(d.原文)}</div>
       ${showBai ? `<div class="b">${esc(d.白话)}</div>` : ""}
+      ${zxFor(d, page*PER+i)}
     </div>`).join("") || `<div class="panel">未检索到条目。</div>`;
+}
+/* 中西联动：条目关键词 → 联动轴（标签+可展开对照卡） */
+function zxFor(d, idx){
+  const Z = window.ZHONGXI || [];
+  const text = (d.原文||"") + (d.白话||"");
+  const hits = Z.filter(z => z.keywords.some(k => text.includes(k))).slice(0, 3);
+  if(!hits.length) return "";
+  return `
+    <div class="zx-row">
+      ${hits.map(z=>`<a class="tag zx-tag" href="#" onclick="document.getElementById('zx-${idx}').open=!document.getElementById('zx-${idx}').open;return false">中西联动 · ${z.tcm}</a>`).join("")}
+    </div>
+    <details class="zx" id="zx-${idx}">
+      <summary>中西医对照</summary>
+      ${hits.map(z=>`
+        <div class="zx-card">
+          <div class="zx-t"><b>${z.tcm}</b> ↔ ${z.western}</div>
+          <div class="zx-b"><b>病机：</b>${z.bingji}</div>
+          <div class="zx-b"><b>关键指标：</b>${z.indicators}｜<b>检查：</b>${z.exams}</div>
+          <div class="zx-b"><b>循证：</b>${z.evidence}</div>
+        </div>`).join("")}
+    </details>`;
+}
+/* 中西联动总览卡 */
+document.getElementById("zxGrid").innerHTML = (window.ZHONGXI||[]).map(z=>`
+  <div class="panel zx-axis" style="cursor:pointer" onclick="zxFilter('${z.id}')">
+    <div style="font-size:15px; letter-spacing:.1em"><b>${z.tcm}</b></div>
+    <div style="color:var(--zhu); font-size:13px; margin:5px 0">↔ ${z.western}</div>
+    <div style="font-size:12px; color:var(--muted); line-height:1.8">${z.indicators}</div>
+    <div style="margin-top:8px"><a href="#" onclick="zxFilter('${z.id}');return false">筛选相关条文 →</a></div>
+  </div>`).join("");
+function zxFilter(id){
+  const z = (window.ZHONGXI||[]).find(x=>x.id===id);
+  if(!z) return;
+  filtered = DATA.filter(d => z.keywords.some(k => ((d.原文||"")+(d.白话||"")+(d.source||"")).includes(k)));
+  page = 0;
+  document.getElementById("q").value = "";
+  draw();
+  window.scrollTo({top: 200, behavior:"smooth"});
 }
 function esc(t){ return (t||"").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 function nextPage(){ page++; draw(); window.scrollTo({top:200,behavior:"smooth"}); }
