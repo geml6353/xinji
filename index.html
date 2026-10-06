@@ -189,6 +189,7 @@
 <script src="data/model_priors.js"></script>
 <script src="data/zhiliao_data.js"></script>
 <script src="data/guwen_index.js"></script>
+<script src="motifs.js"></script>
 <script>
 /* ═══ 壹 · 每日一条 ═══ */
 const G = window.GUWEN || [];
@@ -247,12 +248,17 @@ function pickSyn(k, el){
       <tr><th>代茶饮</th><td>${z["代茶饮"]||""}</td></tr>
       <tr><th>针灸</th><td>${z["针灸"]||""}</td></tr>
       <tr><th>中成药</th><td>${z["中成药"]||""}</td></tr>
+    </table>
+    <div id="organSlot"></div>
+    <table>
       <tr><th>中医风险</th><td>${z["风险_中医"]||""}</td></tr>
       <tr><th>西医风险</th><td>${z["风险_西医"]||""}</td></tr>
       <tr><th>调养</th><td>${z["调养"]||""}</td></tr>
       <tr><th>复诊</th><td>${z["复诊"]||""}</td></tr>
     </table>
     <div style="margin-top:10px"><a href="wenzhen.html">→ 到智能问诊生成完整病历报告</a></div>`;
+  const slot = document.getElementById("organSlot");
+  if(slot && window.renderOrganRisk) renderOrganRisk(slot, SYNDROME_ORGAN_RISK[k] || {心:3}, "五 脏 风 险 · 病 机 推 演");
 }
 drawSynList();
 pickSyn(Object.keys(Z)[0]||"心虚胆怯", document.querySelector(".syn-item"));

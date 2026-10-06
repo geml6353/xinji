@@ -268,3 +268,42 @@ footer{margin-top:60px; border-top:1px solid var(--line-2); padding:26px 0 40px;
 
 /* 字墙视差容器 */
 .pattern-wall{will-change:transform}
+
+/* ═══════ 雅致纹样层（团龙/祥云/回纹/五脏风险盘） ═══════ */
+
+/* 团龙图腾水印 */
+.dragon-holder{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  pointer-events:none; z-index:0; color:var(--zhu)}
+.dragon-medallion{width:min(62vw,620px); height:auto}
+.dragon-ring{transform-origin:280px 280px; animation:dragonSpin 140s linear infinite}
+@keyframes dragonSpin{to{transform:rotate(360deg)}}
+
+/* 祥云分节带 */
+.cloud-band-holder{width:100%; height:22px; margin:2px 0 10px; color:var(--line-2)}
+.cloud-band{width:100%; height:22px; display:block}
+
+/* 回纹角饰 */
+.panel.corner{position:relative}
+.fret-corner{position:absolute; color:var(--line-2); opacity:.85; pointer-events:none}
+.fret-tl{left:7px; top:7px}
+.fret-tr{right:7px; top:7px; transform:scaleX(-1)}
+.fret-bl{left:7px; bottom:7px; transform:scaleY(-1)}
+.fret-br{right:7px; bottom:7px; transform:scale(-1,-1)}
+
+/* 五脏风险精致盘 */
+.organ-board{background:linear-gradient(160deg,#FBF9F3,#F4EFE2); border:1px solid var(--line-2);
+  border-radius:8px; padding:16px 18px 12px; margin:12px 0}
+.organ-caption{font-size:12.5px; letter-spacing:.32em; color:var(--muted); margin-bottom:12px}
+.organ-row{display:grid; grid-template-columns:repeat(5,1fr); gap:10px}
+.organ-card{background:var(--ocb); border:1px solid var(--line); border-top:3px solid var(--oc);
+  border-radius:6px; padding:12px 8px 10px; text-align:center; transition:transform .18s ease, box-shadow .18s}
+.organ-card:hover{transform:translateY(-3px); box-shadow:0 12px 26px -18px rgba(80,50,20,.5)}
+.organ-seal{width:38px; height:38px; margin:0 auto; border:2px solid var(--oc); border-radius:5px;
+  display:flex; align-items:center; justify-content:center; font-size:19px; color:var(--oc);
+  background:#FFFDF8}
+.organ-fang{font-size:11px; color:var(--muted); letter-spacing:.22em; margin:6px 0 4px}
+.organ-dots{display:flex; gap:5px; justify-content:center; margin:4px 0}
+.odot{width:8px; height:8px; border-radius:50%; border:1px solid var(--line-2); background:transparent}
+.organ-lv{font-size:13px; letter-spacing:.28em; font-weight:600}
+.organ-warn{font-size:10.5px; color:var(--muted); line-height:1.7; margin-top:5px}
+@media (max-width:720px){ .organ-row{grid-template-columns:repeat(2,1fr)} }

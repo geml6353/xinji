@@ -121,6 +121,7 @@
 <script src="data/model_priors.js"></script>
 <script src="data/zhiliao_data.js"></script>
 <script src="data/guwen_index.js"></script>
+<script src="motifs.js"></script>
 <script>
 // —— 症状勾选 ——
 const SYMPTOMS = ["心悸","怔忡","惊悸","胸闷","气短","乏力","自汗","盗汗","失眠","多梦","头晕","浮肿","肢冷","畏寒","口干","烦躁","善惊","健忘","不得卧","喘促","尿少","胸痛"];
@@ -316,6 +317,7 @@ function generate(){
   </table>
 
   <h3>九、风险预警</h3>
+  <div id="organSlot"></div>
   <div class="warn danger"><b>中医五脏风险：</b>${esc(plan["风险_中医"]||"")}<br><b>西医指标风险：</b>${esc(plan["风险_西医"]||"")}</div>
 
   <h3>十、调养方案与日常注意事项</h3>
@@ -327,6 +329,8 @@ function generate(){
   <div class="warn" style="margin-top:14px">⚠️ 本报告由 xinji.wiki 生成，仅供研究参考，不构成医疗建议；用药与检查请遵医嘱。</div>`;
 
   document.getElementById("report").innerHTML = html;
+  const slot = document.getElementById("organSlot");
+  if(slot && window.renderOrganRisk) renderOrganRisk(slot, SYNDROME_ORGAN_RISK[syn] || {心:3}, `五 脏 风 险 盘 · ${syn}证 病 机 推 演`);
   window._reportText = html;
 }
 
