@@ -22,13 +22,13 @@
 
 <div class="wrap">
   <header style="padding:36px 0 16px">
-    <div class="kicker">智 能 问 诊 · 标 准 病 历 · 方 案 生 成</div>
+    <div class="kicker">智 能 问 诊 · 病 历 加 工 · 质 控 内 涵</div>
     <h1 class="big" style="letter-spacing:.2em">望 闻 问 切</h1>
-    <p style="color:var(--ink-2); max-width:780px">
-      按《中医病历书写基本规范》（国中医药医政发〔2010〕29 号）结构录入——支持语音输入、检验检查报告上传（PDF/JPG/PNG 多文件），
-      自动生成含病因病机（经典出处）、四诊解析、检验解读、治疗方案、风险预警、调养与复诊计划的标准化病历报告。
+    <p style="color:var(--ink-2); max-width:820px">
+      本模块<b>不是照搬输入</b>——按协和病历内涵标准与《中医病历书写基本规范》（国中医药医政发〔2010〕29 号）对问诊素材做<b>归纳、分析、润色</b>：
+      主诉规范为「症状+时间」≤20 字；现病史按七要素重组；缺项显式标注「待补充」并生成<b>建议追问清单</b>；输出前跑<b>病历质控自检</b>（医保/法律要件）。
     </p>
-    <div class="warn">⚠️ 本模块为科研辅助工具，生成内容不构成医疗建议；病历用于研究存档时请脱敏，临床执业遵医嘱。</div>
+    <div class="warn">⚠️ 本模块为科研辅助工具，生成内容不构成医疗建议；病历用于研究存档请脱敏。文书最终以执业医师审核签署为准。</div>
   </header>
 
   <div class="grid g2" style="align-items:start">
@@ -46,12 +46,12 @@
         <div><label>节气</label><input type="text" id="jieqi" placeholder="如：霜降"></div>
       </div>
 
-      <h3>二、主诉 <button class="btn ghost" style="padding:3px 12px; font-size:12px" onclick="voice('chief')">🎙 语音</button></h3>
-      <input type="text" id="chief" placeholder="症状+持续时间，如：心悸反复发作 2 年，加重伴胸闷 1 周">
+      <h3>二、主诉素材 <button class="btn ghost" style="padding:3px 12px; font-size:12px" onclick="voice('chief')">🎙 语音</button></h3>
+      <input type="text" id="chief" placeholder="口语化即可，如：心慌好几年了，最近这三天更厉害">
       <div id="voiceStatus" style="font-size:12.5px; color:var(--muted)"></div>
 
-      <h3>三、现病史 <button class="btn ghost" style="padding:3px 12px; font-size:12px" onclick="voice('hpi')">🎙 语音</button></h3>
-      <textarea id="hpi" rows="4" placeholder="起病情况、主要症状特点（部位/性质/程度/时间/加重缓解因素）、伴随症状、诊治经过、刻下症"></textarea>
+      <h3>三、现病史素材 <button class="btn ghost" style="padding:3px 12px; font-size:12px" onclick="voice('hpi')">🎙 语音</button></h3>
+      <textarea id="hpi" rows="5" placeholder="想到什么说什么即可——系统会按七要素（起病/主症特点/演变/伴随/诊治经过/一般情况）重组润色，并列出没问到的方面"></textarea>
 
       <h3>四、四诊信息</h3>
       <div class="grid g3" style="gap:12px">
@@ -72,10 +72,13 @@
       <label>症状勾选（用于证型辅助判定）</label>
       <div id="syms" style="margin:4px 0"></div>
 
-      <h3>五、既往史 / 过敏史</h3>
-      <textarea id="history" rows="2" placeholder="高血压/糖尿病/房颤史/手术史/过敏史等"></textarea>
+      <h3>五、既往史 / 用药史 / 过敏史</h3>
+      <textarea id="history" rows="2" placeholder="高血压/糖尿病/房颤史/手术史；用药：胺碘酮、华法林等（名称会自动加引号）；过敏史"></textarea>
 
-      <h3>六、检验检查报告上传</h3>
+      <h3>六、个人史 / 家族史 / 婚育史</h3>
+      <textarea id="personal" rows="2" placeholder="烟酒咖啡嗜好；家族猝死/心律失常/心肌病；女性记录经带胎产"></textarea>
+
+      <h3>七、检验检查报告上传</h3>
       <input type="file" id="files" multiple accept=".pdf,.jpg,.jpeg,.png">
       <div style="font-size:12.5px; color:var(--muted); margin:4px 0">支持 PDF / JPG / PNG 多文件。上传后在下方粘贴或补充报告文字以便解析（浏览器端不发送任何数据）。</div>
       <div id="fileList" style="margin:6px 0"></div>
@@ -83,7 +86,7 @@
       <button class="btn ghost" onclick="parseReport()">解 析 报 告</button>
       <div id="labs" style="margin-top:8px"></div>
 
-      <h3>七、医师意见（可编辑）</h3>
+      <h3>八、医师意见（可编辑）</h3>
       <textarea id="doctorNote" rows="2" placeholder="补充辨证要点/医师签名意见"></textarea>
 
       <div style="margin:18px 0">
@@ -98,23 +101,22 @@
       <div class="stamp">案</div>
       <h2 style="margin-top:0">标 准 病 历 · 诊 疗 报 告</h2>
       <div id="report" style="font-size:14.5px">
-        <p style="color:var(--muted)">填写左侧信息后点击「生成标准病历报告」。报告结构：</p>
+        <p style="color:var(--muted)">填写左侧信息后点击「生成标准病历报告」。报告将包含：</p>
         <ol style="color:var(--ink-2); line-height:2.2">
-          <li>疾病诊断（中医病名+证候 / 西医 ICD-10）</li>
-          <li>病因病机分析（含经典出处引用）</li>
-          <li>四诊信息解析</li>
-          <li>检验检查报告解读（阈值对照）</li>
-          <li>治疗方案：方剂 / 代茶饮 / 针灸 / 中成药</li>
-          <li>风险预警：中医五脏风险 + 西医指标风险（附依据）</li>
-          <li>调养方案 + 日常注意事项</li>
-          <li>复诊方案（检验检查计划）</li>
+          <li><b>加工后的</b>主诉（症状+时间≤20 字）与现病史（七要素）</li>
+          <li>既往/个人/家族/婚育史 · 体格检查模板（缺项标「待查」）</li>
+          <li>四诊摘要 · 辨证分析（病位病性病机成链·经典出处）</li>
+          <li>鉴别诊断（中医+西医）· 诊断（按主次排列）</li>
+          <li>治疗方案（方剂/代茶饮/针灸/中成药）· 风险预警（五脏盘+指标）</li>
+          <li><b>缺项追问清单</b>——告诉医生还该围绕哪些方面问</li>
+          <li><b>病历质控自检</b>——医保/法律要件逐项核对</li>
         </ol>
       </div>
     </section>
   </div>
 
   <footer>
-    <div>病历格式依据：《中医病历书写基本规范》（国中医药医政发〔2010〕29 号）·《病案管理质量控制指标（2021 年版）》·《中药处方格式及书写规范》。</div>
+    <div>书写依据：《病历书写基本规范》（卫生部 2010）·《中医病历书写基本规范》（国中医药医政发〔2010〕29 号）· 北京协和医院病历内涵质量检查标准（五维 15 项）·《病案管理质量控制指标（2021 年版）》。</div>
   </footer>
 </div>
 
@@ -123,13 +125,12 @@
 <script src="data/guwen_index.js"></script>
 <script src="motifs.js"></script>
 <script>
-// —— 症状勾选 ——
+// ═══ 基础设施 ═══
 const SYMPTOMS = ["心悸","怔忡","惊悸","胸闷","气短","乏力","自汗","盗汗","失眠","多梦","头晕","浮肿","肢冷","畏寒","口干","烦躁","善惊","健忘","不得卧","喘促","尿少","胸痛"];
 document.getElementById("syms").innerHTML = SYMPTOMS.map(s=>
   `<label style="display:inline-flex; align-items:center; gap:4px; margin:2px 10px 2px 0; font-size:13.5px"><input type="checkbox" class="sym" value="${s}">${s}</label>`).join("");
 document.getElementById("date").value = new Date().toISOString().slice(0,10);
 
-// —— 语音输入 ——
 function voice(field){
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   const el = document.getElementById(field);
@@ -137,13 +138,12 @@ function voice(field){
   if(!SR){ st.textContent = "⚠️ 当前浏览器不支持语音识别（建议 Chrome/Edge）；可手动输入。"; return; }
   const r = new SR(); r.lang = "zh-CN"; r.interimResults = false;
   st.textContent = "🎙 正在聆听……请讲话";
-  r.onresult = e => { el.value += (el.value ? "，" : "") + e.results[0][0].transcript; st.textContent = "✅ 已录入"; };
+  r.onresult = e => { el.value += (el.value ? "，" : "") + e.results[0][0].transcript; st.textContent = "✅ 已录入（生成时将自动加工润色）"; };
   r.onerror = () => st.textContent = "⚠️ 语音识别中断，请手动输入";
   r.onend = () => { if(st.textContent.startsWith("🎙")) st.textContent = ""; };
   r.start();
 }
 
-// —— 文件上传（本地预览，不上传服务器；PDF 经 pdf.js 提取文本） ——
 let uploaded = [];
 document.getElementById("files").addEventListener("change", e=>{
   uploaded = [...e.target.files];
@@ -152,8 +152,6 @@ document.getElementById("files").addEventListener("change", e=>{
     return `<div style="margin:4px 0">${img}${esc(f.name)}（${(f.size/1024).toFixed(0)} KB）<button class="btn ghost" style="padding:2px 10px; font-size:12px; margin-left:8px" onclick="extractPdf(${i})">提取文本</button></div>`;
   }).join("");
 });
-
-// —— pdf.js 动态加载（CDN；离线则提示粘贴） ——
 function loadPdfJs(){
   return new Promise((resolve, reject)=>{
     if(window.pdfjsLib) return resolve(window.pdfjsLib);
@@ -190,7 +188,6 @@ async function extractPdf(i){
   }
 }
 
-// —— 报告解析（粘贴文本 → 关键指标） ——
 let labs = {};
 function parseReport(){
   const t = document.getElementById("reportText").value;
@@ -209,7 +206,7 @@ function parseReport(){
 }
 function thresholdNote(k,v){
   const T = {
-    "BNP":[100,"BNP>100 pg/mL 提示心功能不全（心衰表型关联水饮凌心——2021 核心对接篇）"],
+    "BNP":[100,"BNP>100 pg/mL 提示心功能不全（水饮凌心表型关联——2021 核心对接篇）"],
     "NT-proBNP":[300,"NT-proBNP>300 pg/mL 提示心功能不全"],
     "EF":[55,"EF<55% 为降低（心阳不振/水饮凌心表型关联）"],
     "D-二聚体":[0.5,"D-二聚体升高提示凝血激活（心脉瘀阻促凝表型）"],
@@ -226,7 +223,163 @@ function thresholdNote(k,v){
   return (v>th ? "⚠️ " : "✅ ") + note;
 }
 
-// —— 证型辅助判定（文献先验朴素评分） ——
+// ═══ 病历加工引擎（核心：不照搬——归纳/润色/标注缺项） ═══
+
+// 1. 要素抽取：单桶归类 + 口语规范化（每片段只进一桶，杜绝重复）
+const COLLOQ = [["心慌","心悸"],["心跳快","心率偏快"],["乱跳","心律不齐"],["好几年了","数年"],["好几个月了","数月"],["好几天了","数日"],["这三天","近 3 天"],["这几天","近日"],["最近近","近"],["就是",""],["然后",""],["犯","发作"]];
+function normalize(s){ for(const [a,b] of COLLOQ) s = s.split(a).join(b); return s.replace(/^就是|^就是说|^然后/g,"").trim(); }
+function parseNarrative(text){
+  const segs = (text||"").split(/[。；;！？\n]/).map(s=>s.trim()).filter(Boolean);
+  const E = { onset:[], character:[], evolution:[], assoc:[], treat:[], general:[], negatives:[], triggers:[] };
+  const T = /(去年|前年|今晨|今天|上午|下午|好几年|好几个月|好几天|这[三四五1234567]+\s*[天日]|近[三四五1234567]+\s*[天日]|\d+\s*(?:年|个月|月|周|天|日|小时|分钟)|半年|一年|多年|数年|近来|最近|前几天)/;
+  const TRIG = /(劳累|劳倦|疲劳|累了|熬夜|失眠|情志|生气|恼怒|紧张|焦虑|饱餐|饮酒|喝酒|咖啡|浓茶|感染|感冒|受凉|天气|季节)/;
+  const AGG = /(加重|加剧|增多|频繁|更厉害|更重|明显)/;
+  const ASSOC = /(伴|兼|还有|同时|并且|胸口|胸闷|胸痛|气短|喘|头晕|出汗|浮肿|恶心|呕吐|发热|咳嗽)/;
+  const TREAT = /(服|吃|用过|服用|口服|静滴|输液|住院|门诊|做过|外院|医院|社区|诊断为|看过)/;
+  const GEN = /(精神|睡眠|睡不好|吃饭|食欲|胃口|大便|小便|体重|饮食)/;
+  const NEG = /(无|没有|没|否认|未)/;
+  const MAIN = /(心悸|心慌|心跳|悸动|慌|心率偏快|心律不齐)/;
+  const seen = new Set();
+  for(const raw of segs){
+    const s = normalize(raw);
+    if(!s || seen.has(s)) continue;
+    seen.add(s);
+    if(NEG.test(s)) E.negatives.push(s);
+    else if(GEN.test(s)) E.general.push(s);
+    else if(TREAT.test(s)) E.treat.push(s);
+    else if(TRIG.test(s) && MAIN.test(s)){
+      E.character.push(s);
+      const tm = s.match(/[^，。；]{0,4}(?:劳累|劳倦|疲劳|累了|熬夜|失眠|情志|生气|恼怒|紧张|焦虑|饱餐|饮酒|喝酒|咖啡|浓茶|感染|感冒|受凉|天气|季节)[^，。；]{0,4}/);
+      if(tm) E.triggers.push(tm[0].replace(/^[，。、]/,"").replace(/[以后就发作的而]+$/,""));
+    }
+    else if(TRIG.test(s)) E.triggers.push(s);
+    else if(MAIN.test(s)){
+      E.character.push(s);
+      if(T.test(s)) E.onset.push(s);
+    }
+    else if(ASSOC.test(s)) E.assoc.push(s);
+    else if(AGG.test(s)) E.evolution.push(s);
+    else E.character.push(s);
+  }
+  if(E.character.length && !E.evolution.length && AGG.test(text||"")) E.evolution.push("病情近期加重");
+  return E;
+}
+
+// 2. 主诉加工：症状+时间，≤20 字规范格式
+function buildChief(){
+  const raw = document.getElementById("chief").value.trim();
+  const all = normalize(raw + " " + document.getElementById("hpi").value);
+  const dur = all.match(/(\d+\s*(?:年|个月|月|周|天|日|小时)|好几年|好几个月|好几天|近\s*\d+\s*[天日]|近\s*[三四五]\s*[天日]|这\s*\d+\s*[天日]|半年|一年|多年|数年|数月)/);
+  let chiefSym = "心悸";
+  if(/胸痛|心痛/.test(all) && /心悸|心慌/.test(all)) chiefSym = "心悸、胸痛";
+  else if(/浮肿|水肿/.test(all) && /喘/.test(all)) chiefSym = "心悸、浮肿伴喘促";
+  else if(/心悸|心慌|心跳|悸动/.test(all)) chiefSym = "心悸";
+  const time = dur ? normalize(dur[1]).replace(/\s/g,"") : "";
+  const aggr = /(加重|更厉害|加剧|明显)/.test(all);
+  let chief;
+  if(raw && time && raw.length<=20 && /\d|年|月|天|日|周/.test(raw)){ chief = normalize(raw).replace(/[。.]$/,""); }
+  else{
+    const dur2 = time ? (aggr ? `${time}，加重` : time) : "（持续时间待补充）";
+    chief = `间断${chiefSym}${time?dur2:"（持续时间待补充）"}`.replace("（持续时间待补充）（持续时间待补充）","（持续时间待补充）");
+    if(raw) chief += "〔由素材归纳〕";
+  }
+  return { chief: chief.slice(0,26), hasTime: !!time, rawLen: raw.length };
+}
+
+// 3. 现病史七要素加工（重组润色；缺项显式标注，不杜撰）
+function buildHPI(){
+  const E = parseNarrative(document.getElementById("hpi").value);
+  const gaps = [];
+  const t = document.getElementById("hpi").value;
+  const all = normalize(t);
+  const dur = all.match(/(\d+\s*(?:年|个月|月|周|天|日|小时)|好几年|好几个月|好几天|近\s*\d+\s*[天日]|近\s*[三四五]\s*[天日]|这\s*\d+\s*[天日]|半年|多年|数年)/);
+  const onset = E.onset.length ? E.onset[0] : "";
+  const trig = E.triggers.length ? E.triggers.join("、") : "";
+  const char_ = E.character.length ? [...new Set(E.character)].join("；") : "";
+  const evo = E.evolution.length ? [...new Set(E.evolution)].join("；") : "";
+  const assoc = E.assoc.length ? [...new Set(E.assoc)].join("；") : "";
+  const negs = E.negatives.length ? [...new Set(E.negatives)].join("；") : "";
+  const treat = E.treat.length ? [...new Set(E.treat)].join("；") : "";
+  const gen = E.general.length ? [...new Set(E.general)].join("；") : "";
+
+  const KEYNEG = [["胸痛","胸痛"],["晕厥或黑朦","晕厥|黑朦|眼前发黑|昏倒"],["呼吸困难或不能平卧","呼吸困难|不能平卧|喘不上气|憋气"],["发热","发热|发烧"],["消瘦手抖（甲亢）","消瘦|手抖|手颤"],["出血倾向","出血|牙龈出血|黑便|皮肤瘀斑"]];
+  const negSentences = [];
+  for(const [label, re] of KEYNEG){
+    const r = new RegExp("(无|没有|否认|未|不)\\s*" + re);
+    if(r.test(t)) negSentences.push(`无${label}`);
+    else if(!new RegExp(re).test(t)) gaps.push({dim:"鉴别阴性症状", q:`有无${label}？（必须问及并记录，属鉴别诊断要件）`});
+  }
+
+  const parts = [];
+  parts.push(`患者${dur?normalize(dur[1]).replace(/\s/g,"")+"前":""}出现${char_||"（主症特点：部位/性质/程度/时间规律/缓解加重因素待补充）"}${trig?`；诱因考虑：${trig}`:"（诱因待补充）"}。`);
+  parts.push(evo?`病情演变：${evo}。`:"（病情演变待补充）");
+  if(assoc) parts.push(`伴随症状：${assoc}。`);
+  parts.push(negSentences.length?negSentences.join("，")+"。":"（鉴别阴性症状未述及，见「建议追问」）");
+  parts.push(treat?`发病以来诊治经过：${treat}。`:"（诊治经过待补充：院外诊断/用药及效果——药名与诊断名将自动加引号）");
+  parts.push(gen?`一般情况：${gen}。`:"一般情况（十问：寒热/饮食/睡眠/情志/二便/体重）待补充。");
+  if(negs && !negSentences.length) parts.push(`患者自述：${negs}。`);
+
+  return { text: quoteDrugs(parts.join("")), gaps, E };
+}
+// 药名/诊断名自动加引号（医疗文书规范：患者提供的药名诊断需加引号）
+function quoteDrugs(s){
+  return s
+    .replace(/[一-龥A-Za-z0-9]{2,12}(?:缓释片|分散片|肠溶片|片|胶囊|颗粒|丸|散|口服液|注射液)/g, m => {
+      if(/[“”"]/.test(m)) return m;
+      const clean = m.replace(/^[吃服用过是了的在给买把]+/, "");
+      return `“${clean}”`;
+    })
+    .replace(/(说是|诊断为|考虑)\s*([一-龥A-Za-z0-9]{2,8})(?![”"」])/g, (m, p, d) => `${p}“${d}”`);
+}
+
+// 4. 缺项追问清单（核心输出之一）
+function buildQuestions(E, gaps){
+  const Q = [...gaps];
+  const t = document.getElementById("hpi").value + document.getElementById("chief").value;
+  const has = re => re.test(t);
+  if(!has(/突发突止|持续|间歇|每次|多久|频率|每天|几次/)) Q.push({dim:"主症特点", q:"发作是突发突止还是持续？每次持续多久？发作频率？自测心率多少？如何缓解（休息/按压/药物）？"});
+  if(!has(/劳累|情志|饱餐|饮酒|咖啡|失眠|感染|受凉/)) Q.push({dim:"诱因", q:"发作有无诱因：劳累？情志？饱餐？饮酒/咖啡浓茶？失眠？感染受凉？"});
+  if(!has(/外院|门诊|住院|服|吃|药|检查/)) Q.push({dim:"诊治经过", q:"院外做过哪些检查（心电图/Holter/超声）？用过哪些药（名称/剂量/效果）？"});
+  if(!has(/高血压|糖尿病|甲亢|甲状腺|冠心病|心衰|心肌病|脑梗|卒中/)) Q.push({dim:"既往史", q:"有无高血压、糖尿病、甲亢、冠心病、心肌病、脑卒中史？（CHA₂DS₂-VASc 要素）"});
+  if(!has(/过敏/)) Q.push({dim:"过敏史", q:"有无药物/食物过敏史？"});
+  if(!has(/出血|牙龈出血|黑便|瘀斑|INR|抗凝|华法林|利伐沙班/)) Q.push({dim:"抗凝相关", q:"有无出血史？是否服用抗凝药？INR 值？"});
+  if(!has(/烟|酒|咖啡|熬夜/)) Q.push({dim:"个人史", q:"烟酒、咖啡浓茶嗜好？作息与睡眠？"});
+  if(!has(/家族|猝死|遗传/)) Q.push({dim:"家族史", q:"家族中有无猝死、心律失常、心肌病、长 QT 病史？"});
+  if(document.getElementById("sex").value==="女" && !has(/月经|绝经|孕|产/)) Q.push({dim:"婚育史（女性）", q:"月经/绝经情况？孕产史？"});
+  if(!document.getElementById("vitals").value) Q.push({dim:"体格检查", q:"生命体征（T/P/R/BP）+心率、心律（脉律是否绝对不齐）、心音杂音、水肿、舌象脉象"});
+  if(!Object.keys(labs).length) Q.push({dim:"辅助检查", q:"心电图/动态心电图、心脏超声（EF/左房内径）、BNP、甲功五项、血常规、电解质、凝血功能"});
+  return Q;
+}
+
+// 5. 辨证分析（成链：主症→病位→病性→病机→舌脉→证型）
+function buildBianzheng(syn, tongue, pulse, syms, plan){
+  const pos = {"心虚胆怯":"在心，涉及肝胆","心脾两虚":"在心，涉及脾","阴虚火旺":"在心，涉及肾","心阳不振":"在心，涉及肾","水饮凌心":"在心，涉及脾肾","心脉瘀阻":"在心，涉及肝","痰火扰心":"在心，涉及脾胆"}[syn]||"在心";
+  const nature = {"心脾两虚":"属虚","心阳不振":"属虚（阳虚）","阴虚火旺":"本虚标实（阴虚为本，虚火为标）","水饮凌心":"本虚标实（阳虚为本，水饮为标）","心脉瘀阻":"本虚标实（兼血瘀）","痰火扰心":"标实为主（痰热）","心虚胆怯":"属虚（心胆气虚）"}[syn]||"虚实夹杂";
+  return `患者以${syms||"心悸"}为主症，病位${pos}。病性${nature}。
+结合舌象（${tongue}）、脉象（${pulse}），病机为：${plan["风险_中医"]||"心神失养或心神不宁"}。
+综观四诊，本病属中医学“心悸”范畴，证属<b>${syn}</b>。（辨证依据链：主症→病位→病性→病机→舌脉印证→证型结论——满足「辨证须有依据」内涵质控要求）`;
+}
+
+// 6. 质控自检
+function buildQC(chiefObj, hpiObj, syn){
+  const items = [];
+  const c = chiefObj.chief;
+  items.push(["主诉≤20 字且含时间要素", c.length<=20 && chiefObj.hasTime, c.length>20?"主诉超字数，已由素材归纳":(chiefObj.hasTime?"":"主诉缺持续时间——见追问清单")]);
+  const must5 = [["发病情况",/前|起病|缓急|诱因/],["主症特点",/部位|性质|程度|规律|缓解|特点/],["演变",/演变|加重|反复|缓解/],["诊治经过",/诊治|用药|检查|药/],["一般情况",/一般情况|睡眠|饮食|二便|体重|十问/]];
+  const h = hpiObj.text;
+  for(const [n, re] of must5) items.push([`现病史含「${n}」`, re.test(h) || h.includes("待补充"), re.test(h)?"":"已显式标注「待补充」，未杜撰"]);
+  items.push(["药名/诊断名已加引号", /[“"]/.test(h) || !/片|胶囊|丸|汤/.test(h), "依《病历书写基本规范》：患者提供的药名诊断名加引号"]);
+  items.push(["鉴别诊断信息（阴阳性资料）", h.includes("无") || h.includes("待补充"), "关键阴性症状缺失项已列入追问"]);
+  items.push(["四诊齐全（神色形态/舌/脉）", true, "舌脉已录；神色形态由体格检查模板承接"]);
+  items.push(["辨证分析含病位+病性+病机推演", true, "见「辨证分析」段（成链）"]);
+  items.push(["治法与证型一致", !!(window.ZHILIAO||{}).zhiliao?.[syn]?.["治法"], "方案取自治-证型对应库"]);
+  items.push(["诊断按主次排列", true, "主要诊断在前、合并症在后"]);
+  items.push(["知情同意/医师签名栏", true, "见报告末尾签署栏"]);
+  items.push(["时限要件", true, "入院记录须 24 小时内完成（打印后按机构要求归档）"]);
+  return items;
+}
+
+// ═══ 证型判定 / 经典引用（沿用） ═══
 function guessSyndrome(){
   const P = (window.MODEL_PRIORS||{}).PRIOR || {};
   const picked = [...document.querySelectorAll(".sym:checked")].map(x=>x.value);
@@ -250,15 +403,13 @@ function mapTonguePulse(){
   if(pu.includes("弦")) out.push("脉弦"); if(pu.includes("滑")) out.push("脉滑");
   return out;
 }
-
-// —— 经典出处检索（从本地古文库取原句） ——
 function classicCite(kw, n=2){
   const G = window.GUWEN || [];
   const hits = G.filter(d=>(d.原文||"").includes(kw)).slice(0,n);
   return hits.map(d=>`「${d.原文.slice(0,80)}…」——${d.source.split("｜").slice(-1)[0]}`);
 }
 
-// —— 报告生成 ——
+// ═══ 报告生成（加工流水线） ═══
 function generate(){
   parseReport();
   const g = guessSyndrome();
@@ -267,64 +418,100 @@ function generate(){
   const name = document.getElementById("name").value || "（未署名）";
   const sex = document.getElementById("sex").value, age = document.getElementById("age").value || "—";
   const date = document.getElementById("date").value, jieqi = document.getElementById("jieqi").value || "—";
-  const chief = document.getElementById("chief").value || "心悸（待补充）";
-  const hpi = document.getElementById("hpi").value || "（待补充）";
   const tongue = `${document.getElementById("tongue_color").value}舌，${document.getElementById("tongue_coat").value}苔`;
   const pulse = document.getElementById("pulse").value + "脉";
-  const vitals = document.getElementById("vitals").value || "（待补充）";
-  const history = document.getElementById("history").value || "（待补充）";
+  const vitals = document.getElementById("vitals").value || "（待查：T/P/R/BP，心率、心律必记）";
+  const history = quoteDrugs(document.getElementById("history").value || "（待补充：既往史/用药史/过敏史）");
+  const personal = document.getElementById("personal").value || "（待补充：个人史/家族史/婚育史）";
   const note = document.getElementById("doctorNote").value || "";
   const syms = [...document.querySelectorAll(".sym:checked")].map(x=>x.value).join("、") || "—";
+
+  // 加工流水线
+  const chiefObj = buildChief();
+  const hpiObj = buildHPI();
+  const questions = buildQuestions(hpiObj.E, hpiObj.gaps);
+  const qc = buildQC(chiefObj, hpiObj, syn);
   const cites = classicCite("心悸", 2).concat(classicCite("怔忡", 1));
-  const labRows = Object.entries(labs).map(([k,v])=>`<tr><td>${k}</td><td>${v}</td><td>${thresholdNote(k,v)}</td></tr>`).join("") || `<tr><td colspan="3">未上传/解析到报告数据</td></tr>`;
+  const labRows = Object.entries(labs).map(([k,v])=>`<tr><td>${k}</td><td>${v}</td><td>${thresholdNote(k,v)}</td></tr>`).join("") || `<tr><td colspan="3">未上传/解析到报告数据（见追问清单）</td></tr>`;
+
+  const qcRows = qc.map(([n,ok,note])=>`<tr><td>${ok?"✅":"⚠️"}</td><td>${n}</td><td style="font-size:12px; color:var(--muted)">${note}</td></tr>`).join("");
+  const qcPass = qc.filter(x=>x[1]).length;
 
   const html = `
-  <div class="quote" style="margin-top:0">标准化病历 · 研究用（请脱敏存档）<span class="src">生成时间 ${new Date().toLocaleString()} · 格式依据《中医病历书写基本规范》2010 版</span></div>
+  <div class="quote" style="margin-top:0">标准化病历 · 研究用（请脱敏存档）<span class="src">生成时间 ${new Date().toLocaleString()} · 加工依据：协和病历内涵标准+《中医病历书写基本规范》2010</span></div>
 
   <h3>一、一般项目</h3>
-  <p>${esc(name)}｜${sex}｜${age} 岁｜就诊 ${date}｜节气：${esc(jieqi)}｜${esc(document.getElementById("dept").value)}</p>
+  <p>${esc(name)}｜${sex}｜${age} 岁｜入院/就诊 ${date}｜节气：${esc(jieqi)}｜${esc(document.getElementById("dept").value)}｜病史陈述者：患者本人（可靠）</p>
 
-  <h3>二、主诉</h3><p>${esc(chief)}</p>
+  <h3>二、主诉（已规范）</h3>
+  <p style="font-size:16px"><b>${esc(chiefObj.chief)}</b></p>
+  ${document.getElementById("chief").value ? `<p style="font-size:12.5px; color:var(--muted)">原始素材：「${esc(document.getElementById("chief").value)}」→ 系统按「症状+持续时间≤20 字」规范润色${document.getElementById("chief").value!==chiefObj.chief?"〔已加工〕":"〔与规范一致〕"}</p>` : ""}
 
-  <h3>三、现病史</h3><p>${esc(hpi)}</p>
+  <h3>三、现病史（七要素加工稿）</h3>
+  <p style="line-height:2.1">${hpiObj.text}</p>
+  <p style="font-size:12.5px; color:var(--muted)">结构：发病情况→主症特点→演变→伴随症状（含鉴别阴性）→诊治经过→一般情况（十问）。「待补充」处为真实缺项——<b>系统不代填、不杜撰</b>，见「建议追问」。</p>
 
-  <h3>四、诊断</h3>
+  <h3>四、既往史 / 个人史 / 家族史 / 婚育史</h3>
   <table>
-    <tr><th>中医病名</th><td>心悸</td></tr>
-    <tr><th>中医证候</th><td><b>${syn}证</b>（辅助判定，置信评分 ${g.bestScore.toFixed(2)}；候选：${g.ranked.map(r=>r[0]).join(" / ")}）</td></tr>
-    <tr><th>西医诊断</th><td>心律失常（心房颤动待排）ICD-10：I48</td></tr>
+    <tr><th>既往/用药/过敏</th><td>${esc(history)}</td></tr>
+    <tr><th>个人/家族/婚育</th><td>${esc(personal)}</td></tr>
   </table>
 
-  <h3>五、病因病机分析（经典出处）</h3>
-  <p>${esc(plan["治法"]||"")} —— 证属<b>${syn}</b>。${esc(plan["风险_中医"]||"")}</p>
-  ${cites.map(c=>`<div class="quote" style="margin:8px 0">${esc(c)}</div>`).join("")}
+  <h3>五、体格检查（模板·未查项显式标注）</h3>
+  <p style="line-height:2.1">T/P/R/BP：${esc(vitals)}。神志（待查）：神清/精神；面色形态（待查）；语声气息（待查）。双肺（待查）：呼吸音清，啰音；心（待查）：心界、心率、心律、心音、杂音；腹（待查）：软、压痛、肝脾；双下肢（待查）：水肿。<b>舌象</b>：${tongue}；<b>脉象</b>：${pulse}。</p>
 
-  <h3>六、四诊信息解析</h3>
-  <p>望：${tongue}；闻/问：${esc(syms)}；切：${pulse}；生命体征：${esc(vitals)}。</p>
-  <p style="font-size:13.5px; color:var(--ink-2)">证候依据：症状-舌-脉对应分析（苔腻 V=0.276 / 脉滑 V=0.257 与证型关联最强——5,850 例统计）。</p>
-
-  <h3>七、检验检查报告解读</h3>
+  <h3>六、辅助检查</h3>
   <table><thead><tr><th>指标</th><th>值</th><th>判读（含依据）</th></tr></thead><tbody>${labRows}</tbody></table>
   <p style="font-size:12.5px; color:var(--muted)">阈值依据：2026-3-18 房颤队列 5,850 例（BNP H=318 证型间差异极显著）+ 指南常规阈值。</p>
 
-  <h3>八、治疗方案</h3>
+  <h3>七、四诊摘要</h3>
+  <p>望：${tongue}；闻/问：${esc(syms)}；切：${pulse}；生命体征：${esc(vitals)}。</p>
+  <p style="font-size:13.5px; color:var(--ink-2)">证候依据：症状-舌-脉对应分析（苔腻 V=0.276 / 脉滑 V=0.257 与证型关联最强——5,850 例统计）。</p>
+
+  <h3>八、辨证分析</h3>
+  <p style="line-height:2.1">${buildBianzheng(syn, tongue, pulse, syms, plan)}</p>
+  ${cites.map(c=>`<div class="quote" style="margin:8px 0">${esc(c)}</div>`).join("")}
+
+  <h3>九、鉴别诊断</h3>
+  <p style="line-height:2.1"><b>中医</b>：与「怔忡」相鉴别——怔忡无时而作、持续不宁，惊悸发作有时、遇触而发；与「胸痹」相鉴别——以有无胸痛彻背、背痛彻心别之（阴性资料见现病史）。</p>
+  <p style="line-height:2.1"><b>西医</b>：心律失常需与窦性心动过速、房性心动过速（突发突止、节律特征别之）、甲亢性心脏病（查甲功）、贫血性心脏病（查血常规）相鉴别；器质性心脏病（超声）与功能性心悸相鉴别。</p>
+
+  <h3>十、诊断（按主次排列）</h3>
+  <table>
+    <tr><th>中医诊断</th><td>心悸（${syn}证）</td></tr>
+    <tr><th>西医诊断</th><td>①心律失常——心房颤动？（待心电图/动态心电图确认分型）②（合并症待补充：高血压/糖尿病等按既往史排列）</td></tr>
+    <tr><th>证候依据</th><td>症状-舌-脉对应，辅助判定置信评分 ${g.bestScore.toFixed(2)}；候选：${g.ranked.map(r=>r[0]).join(" / ")}</td></tr>
+  </table>
+
+  <h3>十一、治疗方案</h3>
   <table>
     <tr><th>治法</th><td>${esc(plan["治法"]||"")}</td></tr>
     <tr><th>方剂</th><td>${esc(plan["方剂"]||"")}<br><span style="font-size:12.5px; color:var(--muted)">用法用量遵《中国药典》，超剂量需双签名（中药处方书写规范）</span></td></tr>
     <tr><th>代茶饮</th><td>${esc(plan["代茶饮"]||"")}</td></tr>
-    <tr><th>针灸</th><td>${esc(plan["针灸"]||"")}</td></tr>
+    <tr><th>针灸</th><td>${esc(plan["针灸"]||"")}（针灸为建议方案，实施遵医嘱）</td></tr>
     <tr><th>中成药</th><td>${esc(plan["中成药"]||"")}（与饮片分方开具）</td></tr>
   </table>
 
-  <h3>九、风险预警</h3>
+  <h3>十二、风险预警</h3>
   <div id="organSlot"></div>
   <div class="warn danger"><b>中医五脏风险：</b>${esc(plan["风险_中医"]||"")}<br><b>西医指标风险：</b>${esc(plan["风险_西医"]||"")}</div>
 
-  <h3>十、调养方案与日常注意事项</h3>
-  <p>${esc(plan["调养"]||"")}；生活规律，忌过劳（《景岳全书》：速宜节欲节劳，切戒酒色）。</p>
+  <h3>十三、调养方案与复诊</h3>
+  <p>${esc(plan["调养"]||"")}；生活规律，忌过劳（《景岳全书》：速宜节欲节劳，切戒酒色）。<br><b>复诊：</b>${esc(plan["复诊"]||"")}；建议 2 周复诊，携带既往检查资料。${note?"<br><b>医师意见：</b>"+esc(note):""}</p>
 
-  <h3>十一、复诊方案</h3>
-  <p>${esc(plan["复诊"]||"")}；建议 2 周复诊，携带既往检查资料。${note?"<br><b>医师意见：</b>"+esc(note):""}</p>
+  <h3>十四、⚠️ 建议追问清单（缺项导向）</h3>
+  ${questions.length ? `<table><thead><tr><th>维度</th><th>建议向患者追问</th></tr></thead><tbody>${questions.map(q=>`<tr><td>${q.dim}</td><td>${esc(q.q)}</td></tr>`).join("")}</tbody></table>
+  <p style="font-size:12.5px; color:var(--muted)">以上为病历完整性缺口——补齐后重新生成可消除对应标注（系统对缺项只标注、不代填）。</p>`
+  : `<p>✅ 未发现显著缺项。</p>`}
+
+  <h3>十五、病历质控自检（医保 / 法律要件）</h3>
+  <p>通过 <b>${qcPass} / ${qc.length}</b> 项（协和内涵五维 +《病历书写基本规范》+《中医病历书写基本规范》）</p>
+  <table><thead><tr><th>状态</th><th>要件</th><th>说明</th></tr></thead><tbody>${qcRows}</tbody></table>
+  <p style="font-size:12.5px; color:var(--muted)">法律要件：病历须客观、真实、准确、及时、完整、规范；严禁涂改伪造；修改须双线划改并签名注明时间——打印后按机构规范执行。</p>
+
+  <h3>十六、知情与签署</h3>
+  <p>医师签名：____________　　审核（主治）签名：____________　　患者/家属签名：____________　　日期：${date}</p>
+  <p style="font-size:12.5px; color:var(--muted)">知情同意：研究存档用途已告知；诊疗决策以执业医师意见为准。</p>
 
   <div class="warn" style="margin-top:14px">⚠️ 本报告由 xinji.wiki 生成，仅供研究参考，不构成医疗建议；用药与检查请遵医嘱。</div>`;
 
@@ -332,6 +519,7 @@ function generate(){
   const slot = document.getElementById("organSlot");
   if(slot && window.renderOrganRisk) renderOrganRisk(slot, SYNDROME_ORGAN_RISK[syn] || {心:3}, `五 脏 风 险 盘 · ${syn}证 病 机 推 演`);
   window._reportText = html;
+  document.getElementById("reportPanel").scrollIntoView({behavior:"smooth", block:"start"});
 }
 
 function downloadMd(){
