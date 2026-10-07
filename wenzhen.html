@@ -569,14 +569,27 @@ function generate(){
   <h4>ⓒ 处方安全核对（实时随编辑更新）</h4>
   <div id="rxSafetyBox"></div>
 
-  <h4>ⓓ 素材加工对照（口语素材 → 标准文书）</h4>
+  <h4>ⓓ 病历加工流程（追溯面板）</h4>
+  <div class="flow-steps">
+    <span class="fstep">①口语规范化</span><span class="farrow">→</span>
+    <span class="fstep">②要素分桶（七要素）</span><span class="farrow">→</span>
+    <span class="fstep">③缺项检测</span><span class="farrow">→</span>
+    <span class="fstep">④引号规范·润色</span><span class="farrow">→</span>
+    <span class="fstep">⑤成文</span>
+  </div>
+  <table class="flow-table">
+    <thead><tr><th>要素桶</th><th>从素材抽取的命中片段</th></tr></thead>
+    <tbody>
+      ${[["起病/时间",[...new Set(hpiObj.E.onset)].join("；")||"—"],["主症特点",[...new Set(hpiObj.E.character)].join("；")||"—"],["诱因",[...new Set(hpiObj.E.triggers)].join("；")||"—"],["病情演变",[...new Set(hpiObj.E.evolution)].join("；")||"—"],["伴随症状",[...new Set(hpiObj.E.assoc)].join("；")||"—"],["诊治经过",[...new Set(hpiObj.E.treat)].join("；")||"—"],["一般情况（十问）",[...new Set(hpiObj.E.general)].join("；")||"—"],["鉴别阴性",[...new Set(hpiObj.E.negatives)].join("；")||"—"]].map(([k,v])=>`<tr><td>${k}</td><td style="font-size:12px">${esc(v)}</td></tr>`).join("")}
+    </tbody>
+  </table>
   <table>
-    <tr><th>主诉素材</th><td>${esc(document.getElementById("chief").value||"（未录入）")}<br>→ <b>${esc(chiefObj.chief)}</b></td></tr>
-    <tr><th>现病史素材</th><td style="font-size:12.5px">${esc((document.getElementById("hpi").value||"（未录入）").slice(0,200))}<br>→ 按七要素重组（见正文「三、现病史」）</td></tr>
+    <tr><th>主诉素材</th><td>${esc(document.getElementById("chief").value||"（未录入）")}<br>→ <b>${esc(chiefObj.chief)}</b>${chiefObj.hasTime?"（提取到时间要素）":"（⚠️ 未提取到时间要素——已标注待补充）"}</td></tr>
+    <tr><th>现病史素材</th><td style="font-size:12.5px">${esc((document.getElementById("hpi").value||"（未录入）").slice(0,200))}<br>→ 上表八桶重组为正文「三、现病史」</td></tr>
     <tr><th>既往史素材</th><td style="font-size:12.5px">${esc((document.getElementById("history").value||"（未录入）").slice(0,120))}<br>→ ${esc(histObj.text.slice(0,120))}</td></tr>
     <tr><th>个人史素材</th><td style="font-size:12.5px">${esc((document.getElementById("personal").value||"（未录入）").slice(0,120))}<br>→ ${esc(persObj.text.slice(0,120))}</td></tr>
   </table>
-  <p style="font-size:12px; color:var(--muted)">加工规则：口语规范化→单桶七要素归类→药名/诊断名加引号→缺项显式标注（不代填、不杜撰）。</p>`;
+  <p style="font-size:12px; color:var(--muted)">加工规则：口语规范化（心慌→心悸/乱跳→心律不齐）→单桶七要素归类（每片段只进一桶·去重）→药名/诊断名自动加引号→缺项显式标注「待补充」（不代填、不杜撰）→按协和七要素成文。</p>`;
 
   document.getElementById("report").innerHTML = `
     <div class="doc-head">标 准 病 历（正 文）</div>
@@ -737,6 +750,10 @@ rxStyle.textContent = `
   .assist-panel{margin-top:26px; border:1.5px dashed var(--zhu); border-radius:8px; padding:16px 20px; background:rgba(166,56,44,.035)}
   .assist-head{letter-spacing:.32em; font-size:13.5px; color:var(--zhu-deep); margin-bottom:12px}
   .assist-panel h4{margin:16px 0 8px; letter-spacing:.12em}
+  .flow-steps{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:8px 0 12px}
+  .fstep{font-size:12px; letter-spacing:.1em; padding:4px 12px; border:1px solid var(--line-2); border-radius:14px; background:#FFFDF8}
+  .farrow{color:var(--zhu)}
+  .flow-table td{font-size:12px}
   @media print{ .rx-head, .rx-rows, .rx-head button, #rxWrap > span, .assist-panel { display:none !important } }
 `;
 document.head.appendChild(rxStyle);
