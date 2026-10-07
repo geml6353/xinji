@@ -377,6 +377,13 @@ function buildQC(chiefObj, hpiObj, syn){
   items.push(["诊断按主次排列", true, "主要诊断在前、合并症在后"]);
   items.push(["知情同意/医师签名栏", true, "见报告末尾签署栏"]);
   items.push(["时限要件", true, "入院记录须 24 小时内完成（打印后按机构要求归档）"]);
+  // 处方安全核对（十八反/十九畏/妊娠/毒剧药/医保）
+  try{
+    const SF = (typeof rxSafetyFindings === "function") ? rxSafetyFindings() : [];
+    const hard = SF.filter(f=>f.lv==="🚫").length, warn = SF.filter(f=>f.lv==="⚠️").length;
+    items.push(["处方安全核对（十八反/十九畏/妊娠禁忌/毒剧药）", hard===0, hard? `🚫 ${hard} 项禁配需处理` : (warn? `⚠️ ${warn} 项警示待确认` : "未见禁配与规范缺失")]);
+    items.push(["医保用药提示（限用/重复用药）", true, SF.filter(f=>f.lv==="💡").length? "见处方下方提示" : "无提示项"]);
+  }catch(e){ items.push(["处方安全核对", true, "（无处方时跳过）"]); }
   return items;
 }
 
@@ -431,6 +438,7 @@ function generate(){
   const chiefObj = buildChief();
   const hpiObj = buildHPI();
   const questions = buildQuestions(hpiObj.E, hpiObj.gaps);
+  computeRx(syn, plan);
   const qc = buildQC(chiefObj, hpiObj, syn);
   const cites = classicCite("心悸", 2).concat(classicCite("怔忡", 1));
   const labRows = Object.entries(labs).map(([k,v])=>`<tr><td>${k}</td><td>${v}</td><td>${thresholdNote(k,v)}</td></tr>`).join("") || `<tr><td colspan="3">未上传/解析到报告数据（见追问清单）</td></tr>`;
@@ -522,20 +530,90 @@ function generate(){
   document.getElementById("report").innerHTML = html;
   const slot = document.getElementById("organSlot");
   if(slot && window.renderOrganRisk) renderOrganRisk(slot, SYNDROME_ORGAN_RISK[syn] || {心:3}, `五 脏 风 险 盘 · ${syn}证 病 机 推 演`);
-  initRx(syn, plan);
+  drawRx();
   window._reportText = html;
   document.getElementById("reportPanel").scrollIntoView({behavior:"smooth", block:"start"});
 }
 
 // ═══ 规范处方编辑器（药味+剂量+脚注·手动录入修改） ═══
 let RX = { name:"", source:"", herbs:[], days:7, usage:"" };
-function initRx(syn, plan){
+function computeRx(syn, plan){
   const F = window.FORMULAS||{}, S = window.SYN_FORMULA||{};
   let key = Object.keys(F).find(k => (plan["方剂"]||"").includes(k));
   if(!key) key = S[syn] || "归脾汤";
   const f = F[key] || {source:"", herbs:[["","",""]], days:7, usage:"水煎服，日 1 剂"};
   RX = { name:key, source:f.source, herbs: f.herbs.map(h=>[...h]), days: f.days, usage: f.usage };
-  drawRx();
+}
+function initRx(syn, plan){ computeRx(syn, plan); drawRx(); }
+
+// ═══ 处方安全核对（十八反/十九畏/妊娠禁忌/毒剧药/医保限用） ═══
+const RX_CONTRA = [ /* 十八反 */
+  {a:/乌头|川乌|草乌|附子/, b:/半夏|瓜蒌|栝楼|贝母|白蔹|白及/, name:"乌头（附子）反半夏/瓜蒌/贝母/白蔹/白及", src:"十八反「半蒌贝蔹及攻乌」"},
+  {a:/甘草/, b:/甘遂|大戟|海藻|芫花/, name:"甘草反甘遂/大戟/海藻/芫花", src:"十八反「藻戟遂芫俱战草」"},
+  {a:/藜芦/, b:/人参|沙参|丹参|玄参|细辛|芍药/, name:"藜芦反人参/沙参/丹参/玄参/细辛/芍药", src:"十八反「诸参辛芍叛藜芦」"}
+];
+const RX_FEAR = [ /* 十九畏 */
+  {a:/硫黄/, b:/朴硝|芒硝|玄明粉/, name:"硫黄畏朴硝"}, {a:/水银/, b:/砒霜/, name:"水银畏砒霜"},
+  {a:/狼毒/, b:/密陀僧/, name:"狼毒畏密陀僧"}, {a:/巴豆/, b:/牵牛/, name:"巴豆畏牵牛"},
+  {a:/丁香/, b:/郁金/, name:"丁香畏郁金"}, {a:/牙硝|芒硝/, b:/三棱/, name:"牙硝畏三棱"},
+  {a:/川乌|草乌|附子/, b:/犀角/, name:"川乌草乌畏犀角"}, {a:/人参/, b:/五灵脂/, name:"人参畏五灵脂"},
+  {a:/肉桂|官桂/, b:/石脂/, name:"官桂畏石脂"}
+];
+const RX_PREG_BAN = /芫花|甘遂|大戟|巴豆|水蛭|虻虫|斑蝥|附子|乌头|雄黄|朱砂|三棱|莪术/;
+const RX_PREG_CARE = /桃仁|红花|牛膝|枳实|大黄|肉桂|薏苡仁|牡丹皮|冬葵子/;
+const RX_PRECIOUS = /人参|西洋参|鹿茸|冬虫夏草|西红花|三七|灵芝/;
+function rxSafetyFindings(){
+  const F = [];
+  const hs = RX.herbs.filter(h=>h[0]&&h[0].trim()).map(h=>({n:h[0].trim(), d:h[1]||"", note:h[2]||""}));
+  // 十八反/十九畏：两两核对
+  for(let i=0;i<hs.length;i++) for(let j=i+1;j<hs.length;j++){
+    for(const r of RX_CONTRA){
+      if((r.a.test(hs[i].n)&&r.b.test(hs[j].n))||(r.b.test(hs[i].n)&&r.a.test(hs[j].n)))
+        F.push({lv:"🚫", msg:`十八反：${hs[i].n} 与 ${hs[j].n}——${r.name}（${r.src}）`, act:"请确认是否调整配伍"});
+    }
+    for(const r of RX_FEAR){
+      if((r.a.test(hs[i].n)&&r.b.test(hs[j].n))||(r.b.test(hs[i].n)&&r.a.test(hs[j].n)))
+        F.push({lv:"⚠️", msg:`十九畏：${hs[i].n} 与 ${hs[j].n}——${r.name}`, act:"相畏配伍，同方需谨慎并记录理由"});
+    }
+  }
+  // 毒剧药规范
+  for(const h of hs){
+    if(/附子|川乌|草乌/.test(h.n) && !(h.note||"").includes("先煎"))
+      F.push({lv:"⚠️", msg:`${h.n} 为毒剧药——须炮制并先煎 30–60 分钟`, act:"补「先煎」脚注"});
+    if(/朱砂|雄黄/.test(h.n))
+      F.push({lv:"🚫", msg:`${h.n}——现代不作内服（仅历史文献记录）`, act:"删除或改用替代药"});
+    if(/细辛/.test(h.n)){
+      const v = parseFloat(h.d)||0;
+      if(v>3) F.push({lv:"⚠️", msg:`细辛 ${h.d} 超《药典》上限 3g（「细辛不过钱」）`, act:"超剂量需双签名并注明理由"});
+    }
+  }
+  // 妊娠禁忌
+  const sex = document.getElementById("sex")?.value, personal = document.getElementById("personal")?.value || "";
+  const pregnant = /孕|妊|胎/.test(personal);
+  if(sex==="女"){
+    for(const h of hs){
+      if(pregnant && RX_PREG_BAN.test(h.n)) F.push({lv:"🚫", msg:`妊娠禁用：${h.n}`, act:"妊娠期禁用，必须去除"});
+      else if(pregnant && RX_PREG_CARE.test(h.n)) F.push({lv:"⚠️", msg:`妊娠慎用：${h.n}`, act:"权衡利弊并知情同意"});
+    }
+    if(!pregnant && hs.some(h=>RX_PREG_BAN.test(h.n)||RX_PREG_CARE.test(h.n)))
+      F.push({lv:"💡", msg:"育龄女性——请确认妊娠/避孕情况（妊娠禁忌药在方中）", act:"追问并记录"});
+  }
+  // 医保限用/重复用药
+  const precious = hs.filter(h=>RX_PRECIOUS.test(h.n));
+  if(precious.length) F.push({lv:"💡", msg:`名贵饮片：${precious.map(h=>h.n).join("、")}——多地区医保限用/自费`, act:"按当地医保目录；必要时注明自费"});
+  if(/参松养心|稳心|麝香保心|复方丹参/.test(document.getElementById("doctorNote")?.value||""))
+    F.push({lv:"💡", msg:"中成药与饮片并开——核对是否重复用药", act:"医保质控扣分项，避免同功效重复"});
+  return F;
+}
+function rxSafetyRender(){
+  const box = document.getElementById("rxSafetyBox");
+  if(!box) return;
+  const F = rxSafetyFindings();
+  box.innerHTML = F.length ? `
+    <div class="rx-safety">
+      <div style="letter-spacing:.24em; font-size:12.5px; color:var(--zhu-deep); margin-bottom:6px">处 方 安 全 核 对（${F.length} 项）</div>
+      ${F.map(f=>`<div class="rx-sf"><b>${f.lv}</b> ${esc(f.msg)}<span style="color:var(--muted)"> → ${esc(f.act)}</span></div>`).join("")}
+    </div>` : `<div class="rx-safety ok">✅ 处方安全核对通过：未见十八反/十九畏、毒剧药规范缺失、妊娠禁忌、医保限用提示</div>`;
 }
 function drawRx(){
   const w = document.getElementById("rxWrap");
@@ -561,7 +639,8 @@ function drawRx(){
       <button class="btn ghost" style="padding:3px 12px; font-size:12px" onclick="RX.herbs.push(['','','']);drawRx()">＋ 加一味</button>
       <label style="font-size:12px">用法</label><input class="rx-in" style="flex:1" value="${esc(RX.usage)}" oninput="RX.usage=this.value;rxSync()">
     </div>
-    <div class="rx-print" id="rxPrint"></div>`;
+    <div class="rx-print" id="rxPrint"></div>
+    <div id="rxSafetyBox"></div>`;
   rxSync();
 }
 function rxSync(){
@@ -582,6 +661,7 @@ function rxSync(){
       <div>用法：${esc(RX.usage)}</div>
       <div class="rx-sign">医师签名：____________　　审核：____________　　日期：${esc(document.getElementById("date").value)}</div>
     </div>`;
+  rxSafetyRender();
 }
 // 打印时仅输出规范处方单（隐藏编辑器）
 const rxStyle = document.createElement("style");
@@ -596,6 +676,9 @@ rxStyle.textContent = `
   .rx-body{line-height:2.2; font-size:14.5px}
   .rx-foot{margin-top:10px; border-top:1px dashed var(--line-2); padding-top:8px; font-size:13px; line-height:2}
   .rx-sign{color:var(--muted); font-size:12px; margin-top:4px}
+  .rx-safety{margin-top:10px; border:1px solid rgba(166,56,44,.3); border-radius:6px; padding:10px 14px; background:rgba(166,56,44,.05)}
+  .rx-safety.ok{border-color:rgba(62,92,80,.3); background:rgba(62,92,80,.05)}
+  .rx-sf{font-size:12.5px; line-height:1.9}
   @media print{ .rx-head, .rx-rows, .rx-head button, #rxWrap > span { display:none !important } }
 `;
 document.head.appendChild(rxStyle);
