@@ -31,7 +31,12 @@
     <div class="warn">⚠️ 本模块为科研辅助工具，生成内容不构成医疗建议；病历用于研究存档请脱敏。文书最终以执业医师审核签署为准。</div>
   </header>
 
-  <div class="grid g2" style="align-items:start">
+  <div class="grid tri" style="align-items:start">
+    <!-- 医师提示栏（与录入一一对应） -->
+    <aside class="panel assist-side" id="assistSide">
+      <div class="assist-head">医 师 提 示 栏</div>
+      <div id="assistBody"><p style="color:var(--muted); font-size:13px">录入时实时提示：各段缺项与建议追问；生成报告后含质控自检、处方安全、加工流程。</p></div>
+    </aside>
     <!-- 录入 -->
     <section class="panel">
       <h2 style="margin-top:0">病 历 录 入</h2>
@@ -54,15 +59,74 @@
       <textarea id="hpi" rows="5" placeholder="想到什么说什么即可——系统会按七要素（起病/主症特点/演变/伴随/诊治经过/一般情况）重组润色，并列出没问到的方面"></textarea>
 
       <h3>四、四诊信息</h3>
-      <div class="grid g3" style="gap:12px">
+      <div class="tongue-grid">
+        <fieldset><legend>舌神</legend>
+          <label><input type="checkbox" class="t-shen" value="荣">荣</label>
+          <label><input type="checkbox" class="t-shen" value="枯">枯</label>
+        </fieldset>
+        <fieldset><legend>舌色</legend>
+          <label><input type="checkbox" class="t-color" value="淡白">淡白</label>
+          <label><input type="checkbox" class="t-color" value="淡红">淡红</label>
+          <label><input type="checkbox" class="t-color" value="红">红</label>
+          <label><input type="checkbox" class="t-color" value="绛">绛</label>
+          <label><input type="checkbox" class="t-color" value="紫暗">紫暗</label>
+          <label><input type="checkbox" class="t-color" value="瘀斑瘀点">瘀斑瘀点</label>
+        </fieldset>
+        <fieldset><legend>舌形</legend>
+          <label><input type="checkbox" class="t-shape" value="老">老</label>
+          <label><input type="checkbox" class="t-shape" value="嫩">嫩</label>
+          <label><input type="checkbox" class="t-shape" value="胖大">胖大</label>
+          <label><input type="checkbox" class="t-shape" value="瘦薄">瘦薄</label>
+          <label><input type="checkbox" class="t-shape" value="齿痕">齿痕</label>
+          <label><input type="checkbox" class="t-shape" value="裂纹">裂纹</label>
+          <label><input type="checkbox" class="t-shape" value="芒刺">芒刺</label>
+        </fieldset>
+        <fieldset><legend>舌态</legend>
+          <label><input type="checkbox" class="t-state" value="痿软">痿软</label>
+          <label><input type="checkbox" class="t-state" value="强硬">强硬</label>
+          <label><input type="checkbox" class="t-state" value="震颤">震颤</label>
+          <label><input type="checkbox" class="t-state" value="歪斜">歪斜</label>
+          <label><input type="checkbox" class="t-state" value="吐弄">吐弄</label>
+          <label><input type="checkbox" class="t-state" value="短缩">短缩</label>
+        </fieldset>
+        <fieldset><legend>苔色</legend>
+          <label><input type="checkbox" class="t-ccolor" value="白">白</label>
+          <label><input type="checkbox" class="t-ccolor" value="黄">黄</label>
+          <label><input type="checkbox" class="t-ccolor" value="灰黑">灰黑</label>
+        </fieldset>
+        <fieldset><legend>苔质</legend>
+          <label><input type="checkbox" class="t-cqual" value="薄">薄</label>
+          <label><input type="checkbox" class="t-cqual" value="厚">厚</label>
+          <label><input type="checkbox" class="t-cqual" value="腻">腻</label>
+          <label><input type="checkbox" class="t-cqual" value="腐">腐</label>
+          <label><input type="checkbox" class="t-cqual" value="剥落">剥落</label>
+          <label><input type="checkbox" class="t-cqual" value="少">少</label>
+          <label><input type="checkbox" class="t-cqual" value="润">润</label>
+          <label><input type="checkbox" class="t-cqual" value="燥">燥</label>
+          <label><input type="checkbox" class="t-cqual" value="滑">滑</label>
+        </fieldset>
+        <fieldset><legend>舌下络脉</legend>
+          <label><input type="checkbox" class="t-vein" value="正常">正常</label>
+          <label><input type="checkbox" class="t-vein" value="青紫">青紫</label>
+          <label><input type="checkbox" class="t-vein" value="迂曲">迂曲</label>
+          <label><input type="checkbox" class="t-vein" value="怒张">怒张</label>
+        </fieldset>
+      </div>
+      <div class="grid g2" style="gap:12px">
         <div>
-          <label>舌象</label>
-          <select id="tongue_color"><option>淡红</option><option>淡白</option><option>红</option><option>暗红</option><option>紫暗</option></select>
-          <select id="tongue_coat" style="margin-top:6px"><option>薄白</option><option>白腻</option><option>黄腻</option><option>少苔</option><option>剥苔</option><option>厚腻</option></select>
-        </div>
-        <div>
-          <label>脉象</label>
-          <select id="pulse"><option>细</option><option>弱</option><option>结代</option><option>促</option><option>数</option><option>迟</option><option>弦</option><option>滑</option><option>涩</option><option>弦滑</option></select>
+          <label>脉象（可多选）</label>
+          <div id="pulseBox">
+            <label><input type="checkbox" class="pulse" value="细">细</label>
+            <label><input type="checkbox" class="pulse" value="弱">弱</label>
+            <label><input type="checkbox" class="pulse" value="结代">结代</label>
+            <label><input type="checkbox" class="pulse" value="促">促</label>
+            <label><input type="checkbox" class="pulse" value="数">数</label>
+            <label><input type="checkbox" class="pulse" value="迟">迟</label>
+            <label><input type="checkbox" class="pulse" value="弦">弦</label>
+            <label><input type="checkbox" class="pulse" value="滑">滑</label>
+            <label><input type="checkbox" class="pulse" value="涩">涩</label>
+            <label><input type="checkbox" class="pulse" value="沉紧">沉紧</label>
+          </div>
         </div>
         <div>
           <label>生命体征</label>
@@ -451,13 +515,36 @@ function guessSyndrome(){
 }
 function mapTonguePulse(){
   const out = [];
-  const tc = document.getElementById("tongue_color").value, co = document.getElementById("tongue_coat").value, pu = document.getElementById("pulse").value;
-  if(tc==="淡白"||tc==="淡红") out.push("舌淡"); if(tc==="红") out.push("舌红"); if(tc==="紫暗"||tc==="暗红") out.push("舌紫暗");
-  if(co.includes("腻")) out.push("苔腻"); if(co.includes("黄")) out.push("苔黄"); if(co.includes("少")||co.includes("剥")) out.push("苔少");
+  const ck = c => [...document.querySelectorAll("."+c+":checked")].map(x=>x.value);
+  const tc = ck("t-color"), cc = ck("t-ccolor"), cq = ck("t-cqual"), pu = ck("pulse");
+  if(tc.some(v=>["淡白","淡红"].includes(v))) out.push("舌淡");
+  if(tc.some(v=>["红","绛"].includes(v))) out.push("舌红");
+  if(tc.some(v=>["紫暗","瘀斑瘀点"].includes(v))) out.push("舌紫暗");
+  if(cq.some(v=>["腻","腐"].includes(v))) out.push("苔腻");
+  if(cc.some(v=>["黄","灰黑"].includes(v))) out.push("苔黄");
+  if(cq.some(v=>["剥落","少"].includes(v))) out.push("苔少");
   if(pu.includes("细")) out.push("脉细"); if(pu.includes("弱")) out.push("脉弱"); if(pu.includes("结代")) out.push("脉结代");
   if(pu.includes("促")) out.push("脉促"); if(pu.includes("数")) out.push("脉数"); if(pu.includes("迟")) out.push("脉迟");
   if(pu.includes("弦")) out.push("脉弦"); if(pu.includes("滑")) out.push("脉滑");
   return out;
+}
+/* 舌象七维汇总（勾选→标准描述） */
+function getTongue(){
+  const ck = c => [...document.querySelectorAll("."+c+":checked")].map(x=>x.value);
+  const shen = ck("t-shen"), color = ck("t-color"), shape = ck("t-shape"), state = ck("t-state"),
+        cc = ck("t-ccolor"), cq = ck("t-cqual"), vein = ck("t-vein");
+  const parts = [];
+  if(shen.length) parts.push(`舌神${shen.join("")}`);
+  if(color.length) parts.push(`舌色${color.join("、")}`);
+  if(shape.length) parts.push(`舌形${shape.join("、")}`);
+  if(state.length) parts.push(`舌态${state.join("、")}`);
+  if(cc.length||cq.length) parts.push(`苔${cc.join("")||"白"}${cq.join("")}`);
+  if(vein.length) parts.push(`舌下络脉${vein.join("、")}`);
+  return parts.length ? parts.join("；") : "（舌象待查）";
+}
+function getPulse(){
+  const pu = [...document.querySelectorAll(".pulse:checked")].map(x=>x.value);
+  return pu.length ? pu.join("") + "脉" : "（脉象待查）";
 }
 function classicCite(kw, n=2){
   const G = window.GUWEN || [];
@@ -474,8 +561,8 @@ function generate(){
   const name = document.getElementById("name").value || "（未署名）";
   const sex = document.getElementById("sex").value, age = document.getElementById("age").value || "—";
   const date = document.getElementById("date").value, jieqi = document.getElementById("jieqi").value || "—";
-  const tongue = `${document.getElementById("tongue_color").value}舌，${document.getElementById("tongue_coat").value}苔`;
-  const pulse = document.getElementById("pulse").value + "脉";
+  const tongue = getTongue();
+  const pulse = getPulse();
   const vitals = document.getElementById("vitals").value || "（待查：T/P/R/BP，心率、心律必记）";
   const note = document.getElementById("doctorNote").value || "";
   const syms = [...document.querySelectorAll(".sym:checked")].map(x=>x.value).join("、") || "—";
@@ -593,14 +680,92 @@ function generate(){
 
   document.getElementById("report").innerHTML = `
     <div class="doc-head">标 准 病 历（正 文）</div>
-    <div id="recordDoc">${record}</div>
-    <div class="assist-panel">${assist}</div>`;
+    <div id="recordDoc">${record}</div>`;
   const slot = document.getElementById("organSlot");
   if(slot && window.renderOrganRisk) renderOrganRisk(slot, SYNDROME_ORGAN_RISK[syn] || {心:3}, `五 脏 风 险 盘 · ${syn}证 病 机 推 演`);
   drawRx();
+  updateAssist();
   window._reportText = document.getElementById("recordDoc").innerText;
   document.getElementById("reportPanel").scrollIntoView({behavior:"smooth", block:"start"});
 }
+
+// ═══ 医师提示栏（左置·与录入八段一一对应·实时更新） ═══
+function updateAssist(){
+  const box = document.getElementById("assistBody");
+  if(!box) return;
+  const g = guessSyndrome();
+  const syn = g.best || "心虚胆怯";
+  const plan = (window.ZHILIAO||{}).zhiliao?.[syn] || {};
+  const chiefObj = buildChief();
+  const hpiObj = buildHPI();
+  const histObj = buildHistory();
+  const persObj = buildPersonal();
+  const allQ = [...buildQuestions(hpiObj.E, hpiObj.gaps), ...(histObj.gaps||[]), ...(persObj.gaps||[])];
+  if(!RX.herbs.length) computeRx(syn, plan); // 已组方/医师编辑过则保留，不重置
+  const qc = buildQC(chiefObj, hpiObj, syn);
+  const qcPass = qc.filter(x=>x[1]).length;
+  const pick = dims => allQ.filter(q=>dims.some(d=>q.dim.includes(d)));
+  const qRows = qs => qs.length ? `<ul class="as-q">${qs.map(q=>`<li><b>${q.dim}</b>：${esc(q.q)}</li>`).join("")}</ul>` : `<div class="as-ok">✅ 无缺项</div>`;
+  // 舌象七维完整性
+  const tDims = [["舌神","t-shen"],["舌色","t-color"],["舌形","t-shape"],["舌态","t-state"],["苔色","t-ccolor"],["苔质","t-cqual"],["舌下络脉","t-vein"]];
+  const tMissing = tDims.filter(([n,c])=>!document.querySelector("."+c+":checked")).map(([n])=>n);
+  const qcRows = qc.map(([n,ok,note])=>`<tr><td>${ok?"✅":"⚠️"}</td><td>${n}</td><td style="font-size:11px; color:var(--muted)">${note}</td></tr>`).join("");
+
+  box.innerHTML = `
+  <div class="as-sec"><h5>一、一般项目</h5>
+    <div class="as-t">建议记录发病节气（时间医学要素）；病史陈述者与可靠程度。</div></div>
+
+  <div class="as-sec"><h5>二、主诉</h5>
+    <div class="as-t">加工预览：<b>${esc(chiefObj.chief)}</b>${chiefObj.hasTime?"":"（⚠️ 缺持续时间）"}</div>
+    ${qRows(pick(["主症特点"]))}</div>
+
+  <div class="as-sec"><h5>三、现病史</h5>
+    ${qRows(pick(["鉴别阴性","诱因","诊治经过"]))}</div>
+
+  <div class="as-sec"><h5>四、四诊信息</h5>
+    <div class="as-t">舌象七维${tMissing.length?`——未勾选：<b style="color:var(--zhu)">${tMissing.join("、")}</b>`:"——✅ 七维齐全"}｜当前：${esc(getTongue())}</div>
+    <div class="as-t">脉象：${esc(getPulse())}</div></div>
+
+  <div class="as-sec"><h5>五、既往史 / 用药 / 过敏</h5>
+    ${qRows(pick(["既往史","过敏","抗凝"]))}</div>
+
+  <div class="as-sec"><h5>六、个人史 / 家族史 / 婚育史</h5>
+    ${qRows(pick(["个人史","家族史","婚育"]))}</div>
+
+  <div class="as-sec"><h5>七、检验检查</h5>
+    ${qRows(pick(["体格检查","辅助检查"]))}</div>
+
+  <div class="as-sec"><h5>八、质控汇总（生成报告后展开）</h5>
+    <div class="as-t">质控自检：<b>${qcPass} / ${qc.length}</b> 通过${qcPass<qc.length?"（⚠️ 见下表）":" ✅"}</div>
+    <details><summary>质控清单</summary><table>${qcRows}</table></details>
+    <details><summary>处方安全核对（实时）</summary><div id="rxSafetyBox"></div></details>
+    <details><summary>病历加工流程（追溯）</summary>
+      <div class="flow-steps">
+        <span class="fstep">①口语规范化</span><span class="farrow">→</span>
+        <span class="fstep">②要素分桶</span><span class="farrow">→</span>
+        <span class="fstep">③缺项检测</span><span class="farrow">→</span>
+        <span class="fstep">④引号润色</span><span class="farrow">→</span>
+        <span class="fstep">⑤成文</span>
+      </div>
+      <table class="flow-table">
+        ${[["起病",[...new Set(hpiObj.E.onset)].join("；")],["主症",[...new Set(hpiObj.E.character)].join("；")],["诱因",[...new Set(hpiObj.E.triggers)].join("；")],["演变",[...new Set(hpiObj.E.evolution)].join("；")],["伴随",[...new Set(hpiObj.E.assoc)].join("；")],["诊治",[...new Set(hpiObj.E.treat)].join("；")],["十问",[...new Set(hpiObj.E.general)].join("；")],["阴性",[...new Set(hpiObj.E.negatives)].join("；")]].map(([k,v])=>`<tr><td>${k}</td><td style="font-size:11px">${esc(v||"—")}</td></tr>`).join("")}
+      </table>
+    </details>
+    <details><summary>素材加工对照</summary>
+      <div class="as-t" style="font-size:11.5px">主诉：${esc(document.getElementById("chief").value||"—")} → <b>${esc(chiefObj.chief)}</b></div>
+      <div class="as-t" style="font-size:11.5px">既往：${esc((document.getElementById("history").value||"—").slice(0,60))} → ${esc(histObj.text.slice(0,60))}</div>
+      <div class="as-t" style="font-size:11.5px">个人：${esc((document.getElementById("personal").value||"—").slice(0,60))} → ${esc(persObj.text.slice(0,60))}</div>
+    </details>
+    </div>`;
+  rxSafetyRender();
+}
+// 实时更新（输入防抖）
+let _assistTimer = null;
+document.addEventListener("input", ()=>{
+  clearTimeout(_assistTimer);
+  _assistTimer = setTimeout(updateAssist, 500);
+});
+document.addEventListener("DOMContentLoaded", ()=>setTimeout(updateAssist, 300));
 
 // ═══ 规范处方编辑器（药味+剂量+脚注·手动录入修改） ═══
 let RX = { name:"", source:"", herbs:[], days:7, usage:"" };
@@ -754,7 +919,22 @@ rxStyle.textContent = `
   .fstep{font-size:12px; letter-spacing:.1em; padding:4px 12px; border:1px solid var(--line-2); border-radius:14px; background:#FFFDF8}
   .farrow{color:var(--zhu)}
   .flow-table td{font-size:12px}
-  @media print{ .rx-head, .rx-rows, .rx-head button, #rxWrap > span, .assist-panel { display:none !important } }
+  .tri{display:grid; grid-template-columns:290px minmax(0,1fr) minmax(0,1.15fr); gap:16px; align-items:start}
+  .assist-side{position:sticky; top:64px; max-height:calc(100vh - 84px); overflow-y:auto; padding:16px 16px 20px}
+  .as-sec{border-top:1px dashed var(--line-2); padding:10px 0 4px}
+  .as-sec h5{margin:0 0 6px; letter-spacing:.18em; font-size:12.5px; color:var(--zhu-deep)}
+  .as-t{font-size:11.5px; color:var(--ink-2); line-height:1.8}
+  .as-q{margin:4px 0 2px; padding-left:16px}
+  .as-q li{font-size:11.5px; line-height:1.8; color:var(--ink-2)}
+  .as-ok{font-size:11.5px; color:var(--qing)}
+  .assist-side details{margin:6px 0}
+  .assist-side summary{cursor:pointer; font-size:12px; letter-spacing:.1em; color:var(--zhu-deep)}
+  .tongue-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px; margin:6px 0 12px}
+  .tongue-grid fieldset{border:1px solid var(--line-2); border-radius:5px; padding:6px 8px 4px}
+  .tongue-grid legend{font-size:11px; letter-spacing:.22em; color:var(--muted); padding:0 4px}
+  .tongue-grid label, #pulseBox label{display:inline-flex; align-items:center; gap:3px; font-size:12.5px; margin:2px 6px 2px 0}
+  @media (max-width:1100px){ .tri{grid-template-columns:1fr} .assist-side{position:static; max-height:none} }
+  @media print{ .rx-head, .rx-rows, .rx-head button, #rxWrap > span, .assist-side, .assist-panel { display:none !important } }
 `;
 document.head.appendChild(rxStyle);
 
