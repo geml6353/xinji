@@ -122,6 +122,7 @@
 
 <script src="data/model_priors.js"></script>
 <script src="data/zhiliao_data.js"></script>
+<script src="data/formulas.js"></script>
 <script src="data/guwen_index.js"></script>
 <script src="motifs.js"></script>
 <script>
@@ -486,7 +487,10 @@ function generate(){
   <h3>十一、治疗方案</h3>
   <table>
     <tr><th>治法</th><td>${esc(plan["治法"]||"")}</td></tr>
-    <tr><th>方剂</th><td>${esc(plan["方剂"]||"")}<br><span style="font-size:12.5px; color:var(--muted)">用法用量遵《中国药典》，超剂量需双签名（中药处方书写规范）</span></td></tr>
+    <tr><th>方剂（规范处方·可编辑录入）</th><td>
+      <div id="rxWrap"></div>
+      <span style="font-size:12.5px; color:var(--muted)">药味/剂量/脚注均可手动修改增删；剂量遵《中国药典》，超剂量需双签名（《中药处方格式及书写规范》）</span>
+    </td></tr>
     <tr><th>代茶饮</th><td>${esc(plan["代茶饮"]||"")}</td></tr>
     <tr><th>针灸</th><td>${esc(plan["针灸"]||"")}（针灸为建议方案，实施遵医嘱）</td></tr>
     <tr><th>中成药</th><td>${esc(plan["中成药"]||"")}（与饮片分方开具）</td></tr>
@@ -518,9 +522,83 @@ function generate(){
   document.getElementById("report").innerHTML = html;
   const slot = document.getElementById("organSlot");
   if(slot && window.renderOrganRisk) renderOrganRisk(slot, SYNDROME_ORGAN_RISK[syn] || {心:3}, `五 脏 风 险 盘 · ${syn}证 病 机 推 演`);
+  initRx(syn, plan);
   window._reportText = html;
   document.getElementById("reportPanel").scrollIntoView({behavior:"smooth", block:"start"});
 }
+
+// ═══ 规范处方编辑器（药味+剂量+脚注·手动录入修改） ═══
+let RX = { name:"", source:"", herbs:[], days:7, usage:"" };
+function initRx(syn, plan){
+  const F = window.FORMULAS||{}, S = window.SYN_FORMULA||{};
+  let key = Object.keys(F).find(k => (plan["方剂"]||"").includes(k));
+  if(!key) key = S[syn] || "归脾汤";
+  const f = F[key] || {source:"", herbs:[["","",""]], days:7, usage:"水煎服，日 1 剂"};
+  RX = { name:key, source:f.source, herbs: f.herbs.map(h=>[...h]), days: f.days, usage: f.usage };
+  drawRx();
+}
+function drawRx(){
+  const w = document.getElementById("rxWrap");
+  if(!w) return;
+  w.innerHTML = `
+    <div class="rx-head">
+      <label style="font-size:12px">方名</label><input class="rx-in" style="width:130px" value="${esc(RX.name)}" oninput="RX.name=this.value;rxSync()">
+      <label style="font-size:12px">剂数</label><input class="rx-in" style="width:56px" value="${RX.days}" oninput="RX.days=this.value;rxSync()">
+      <span style="font-size:11.5px; color:var(--muted)">${esc(RX.source)}</span>
+    </div>
+    <div class="rx-rows" id="rxRows">
+      ${RX.herbs.map((h,i)=>`
+        <div class="rx-row">
+          <input class="rx-in rx-name" value="${esc(h[0])}" placeholder="药名" oninput="RX.herbs[${i}][0]=this.value;rxSync()">
+          <input class="rx-in rx-dose" value="${esc(h[1])}" placeholder="剂量" oninput="RX.herbs[${i}][1]=this.value;rxSync()">
+          <select class="rx-in rx-note" onchange="RX.herbs[${i}][2]=this.value;rxSync()">
+            ${["","先煎","后下","烊化","包煎","冲服","兑服","为引"].map(o=>`<option ${h[2]===o?"selected":""}>${o}</option>`).join("")}
+          </select>
+          <button class="btn ghost rx-del" onclick="RX.herbs.splice(${i},1);drawRx()">✕</button>
+        </div>`).join("")}
+    </div>
+    <div class="rx-head">
+      <button class="btn ghost" style="padding:3px 12px; font-size:12px" onclick="RX.herbs.push(['','','']);drawRx()">＋ 加一味</button>
+      <label style="font-size:12px">用法</label><input class="rx-in" style="flex:1" value="${esc(RX.usage)}" oninput="RX.usage=this.value;rxSync()">
+    </div>
+    <div class="rx-print" id="rxPrint"></div>`;
+  rxSync();
+}
+function rxSync(){
+  const el = document.getElementById("rxPrint");
+  if(!el) return;
+  const rows = [];
+  RX.herbs.forEach(h=>{
+    if(h[0] && h[0].trim()) rows.push(`${h[0].trim()} ${h[1].trim()}${h[2]?"（"+h[2]+"）":""}`);
+  });
+  // 每行 4 味排版（规范处方横排）
+  const lines = [];
+  for(let i=0; i<rows.length; i+=4) lines.push(rows.slice(i,i+4).join("　"));
+  el.innerHTML = `
+    <div class="rx-title">处　方（Rp.）</div>
+    <div class="rx-body">${lines.map(l=>`<div>${esc(l)}</div>`).join("") || "<div style='color:var(--muted)'>（未录入药味）</div>"}</div>
+    <div class="rx-foot">
+      <div>共 <b>${rows.length}</b> 味 × <b>${esc(String(RX.days))}</b> 剂</div>
+      <div>用法：${esc(RX.usage)}</div>
+      <div class="rx-sign">医师签名：____________　　审核：____________　　日期：${esc(document.getElementById("date").value)}</div>
+    </div>`;
+}
+// 打印时仅输出规范处方单（隐藏编辑器）
+const rxStyle = document.createElement("style");
+rxStyle.textContent = `
+  .rx-head{display:flex; gap:8px; align-items:center; margin:6px 0; flex-wrap:wrap}
+  .rx-in{font-size:13px; padding:4px 8px; border:1px solid var(--line-2); border-radius:4px; background:#FFFDF8; font-family:inherit}
+  .rx-name{width:110px} .rx-dose{width:74px} .rx-note{width:82px}
+  .rx-row{display:flex; gap:6px; margin:3px 0; align-items:center}
+  .rx-del{padding:2px 8px !important; font-size:11px; color:var(--zhu)}
+  .rx-print{margin-top:12px; border:1px solid var(--line-2); border-radius:6px; padding:14px 18px; background:#FCFAF4}
+  .rx-title{letter-spacing:.5em; font-size:15px; margin-bottom:10px}
+  .rx-body{line-height:2.2; font-size:14.5px}
+  .rx-foot{margin-top:10px; border-top:1px dashed var(--line-2); padding-top:8px; font-size:13px; line-height:2}
+  .rx-sign{color:var(--muted); font-size:12px; margin-top:4px}
+  @media print{ .rx-head, .rx-rows, .rx-head button, #rxWrap > span { display:none !important } }
+`;
+document.head.appendChild(rxStyle);
 
 function downloadMd(){
   const el = document.getElementById("report");
