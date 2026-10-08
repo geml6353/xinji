@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>多学科会诊 · xinji.wiki</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.mdt-stage{margin:14px 0; opacity:.55; transition:opacity .5s ease}
+.mdt-stage.lit{opacity:1}
+.mdt-card{border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin:10px 0; background:var(--card)}
+.mdt-card-h{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px}
+.mdt-title{font-weight:700}
+.mdt-badge{font-size:12px; padding:2px 10px; border-radius:99px; border:1px solid var(--border)}
+.mdt-badge.ok{color:#2e7d32; border-color:#2e7d32}
+.mdt-badge.high{color:#c62828; border-color:#c62828; background:rgba(198,40,40,.06)}
+.mdt-badge.mid{color:#b26a00; border-color:#b26a00}
+.mdt-badge.low{color:#1565c0; border-color:#1565c0}
+.mdt-line{font-size:13.5px; line-height:1.75; color:var(--ink-2)}
+.mdt-line b{color:var(--ink)}
+.mdt-meta{margin-top:8px; font-size:12px; color:var(--muted)}
+.mdt-table{width:100%; border-collapse:collapse; font-size:13px; margin-top:8px}
+.mdt-table th,.mdt-table td{border:1px solid var(--border); padding:5px 8px; text-align:left}
+.mdt-ev{border-left:3px solid var(--accent); padding:6px 10px; margin:8px 0; font-size:12.8px; line-height:1.7; background:rgba(0,0,0,.02)}
+.mdt-ev-id{color:var(--accent); font-weight:700}
+.mdt-ev-q{color:var(--muted); font-size:11.5px}
+.mdt-final{border:2px solid var(--accent)}
+.mdt-report h4{margin:14px 0 6px; letter-spacing:.08em}
+.mdt-report ul{margin:4px 0 4px 18px; font-size:13.5px; line-height:1.85}
+.chips label{display:inline-flex; align-items:center; gap:5px; border:1px solid var(--border); border-radius:99px; padding:4px 11px; margin:3px; cursor:pointer; font-size:13px}
+.chips label:has(input:checked){background:var(--accent); color:#fff; border-color:var(--accent)}
+.chips input{display:none}
+#mdtSummary{margin:12px 0; padding:10px 14px; border-radius:10px; background:rgba(0,0,0,.045); font-size:13.5px}
+.pipe{display:flex; gap:8px; flex-wrap:wrap; margin:8px 0 2px}
+.pipe span{font-size:12px; padding:3px 10px; border:1px dashed var(--border); border-radius:99px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <a class="brand" href="index.html"><span class="seal">悸</span>心 悸 · xinji.wiki</a>
+    <nav class="nav">
+      <a href="index.html">知识看板</a>
+      <a href="guwen.html">古文研习</a>
+      <a href="wenzhen.html">智能问诊</a>
+      <a href="mdt.html" class="on">多学科会诊</a>
+      <a href="wenda.html">知识问答</a>
+    </nav>
+  </div>
+</div>
+
+<div class="wrap">
+  <header style="padding:36px 0 16px">
+    <div class="kicker">多 智 能 体 · 多 学 科 会 诊 · 证 据 循 环</div>
+    <h1 class="big" style="letter-spacing:.2em">MDT 会诊</h1>
+    <p style="color:var(--ink-2); max-width:860px">
+      参照 <b>DeLiriuMAgents</b>（Cell Reports Medicine 2026，北大健康数据科学）多智能体范式构建：
+      ①EHRPromptAgent 结构化病历叙事化（单位+参考范围+偏离方向）→ ②ModelPhysicianAgent 评分模型（5,850 例·AUC 0.784）→
+      ③心血管 / 中医辨证 / 全科与用药安全<b>三专科智能体</b>独立会诊 → ④MedEvidenceAgent 本地知识库 <b>RAG</b>（40 条指南/古籍/本库统计证据，声明级引用）→
+      ⑤主任医师终裁（<b>共识可推翻模型判定</b>），输出五段式风险报告。
+    </p>
+    <div class="pipe">
+      <span>① EHRPromptAgent</span><span>→</span><span>② ModelPhysicianAgent</span><span>→</span>
+      <span>③ 三专科智能体（并行）</span><span>→</span><span>④ MedEvidenceAgent·RAG</span><span>→</span>
+      <span>⑤ 主任医师终裁</span>
+    </div>
+    <div class="warn">⚠️ 科研辅助系统，输出不构成医疗建议；风险概率为 5,850 例回顾性队列层内事件率锚定，非个体诊断。临床决策遵医嘱。</div>
+  </header>
+
+  <div class="grid" style="grid-template-columns:340px 1fr; align-items:start; gap:18px">
+    <!-- 输入 -->
+    <aside class="panel" style="position:sticky; top:14px">
+      <h2 style="margin-top:0; font-size:17px">会 诊 素 材</h2>
+      <div class="grid" style="grid-template-columns:1fr 1fr; gap:8px">
+        <div><label>代号</label><input id="mName" placeholder="研究用代号"></div>
+        <div><label>年龄</label><input id="mAge" type="number" placeholder="岁"></div>
+      </div>
+      <label>性别</label>
+      <select id="mSex"><option value="男">男</option><option value="女">女</option></select>
+      <label>主诉</label>
+      <input id="mChief" placeholder="如：心悸气短 3 年，加重伴喘憋 1 周">
+
+      <h3 style="font-size:14px">症状（勾选）</h3>
+      <div class="chips">
+        <label><input type="checkbox" name="msym" value="喘憋">喘憋</label>
+        <label><input type="checkbox" name="msym" value="双下肢水肿">双下肢水肿</label>
+        <label><input type="checkbox" name="msym" value="气短">气短</label>
+        <label><input type="checkbox" name="msym" value="憋气">憋气</label>
+        <label><input type="checkbox" name="msym" value="胸闷">胸闷</label>
+        <label><input type="checkbox" name="msym" value="间断胸闷">间断胸闷</label>
+        <label><input type="checkbox" name="msym" value="乏力">乏力</label>
+        <label><input type="checkbox" name="msym" value="心慌">心慌</label>
+        <label><input type="checkbox" name="msym" value="心悸">心悸</label>
+        <label><input type="checkbox" name="msym" value="头晕">头晕</label>
+        <label><input type="checkbox" name="msym" value="头痛">头痛</label>
+        <label><input type="checkbox" name="msym" value="口干">口干</label>
+        <label><input type="checkbox" name="msym" value="咳嗽">咳嗽</label>
+        <label><input type="checkbox" name="msym" value="阵发心慌">阵发心慌</label>
+        <label><input type="checkbox" name="msym" value="言语不利">言语不利</label>
+      </div>
+
+      <h3 style="font-size:14px">脉象 / 舌象</h3>
+      <div class="chips">
+        <label><input type="checkbox" name="mpulse" value="沉">脉沉</label>
+        <label><input type="checkbox" name="mpulse" value="短">脉短</label>
+        <label><input type="checkbox" name="mpulse" value="代">脉代</label>
+        <label><input type="checkbox" name="mpulse" value="滑">脉滑</label>
+        <label><input type="checkbox" name="mpulse" value="弦">脉弦</label>
+        <label><input type="checkbox" name="mtongue" value="红">舌红</label>
+        <label><input type="checkbox" name="mtongue" value="黄">苔黄</label>
+        <label><input type="checkbox" name="mtongue" value="老">舌老</label>
+      </div>
+
+      <h3 style="font-size:14px">既往史</h3>
+      <div class="chips">
+        <label><input type="checkbox" name="mhist" value="高血压">高血压</label>
+        <label><input type="checkbox" name="mhist" value="糖尿病">糖尿病</label>
+        <label><input type="checkbox" name="mhist" value="高血脂">高血脂</label>
+        <label><input type="checkbox" name="mhist" value="心力衰竭">心力衰竭</label>
+        <label><input type="checkbox" name="mhist" value="冠心病">冠心病</label>
+        <label><input type="checkbox" name="mhist" value="脑卒中">脑卒中</label>
+        <label><input type="checkbox" name="mhist" value="甲状腺疾病">甲状腺疾病</label>
+        <label><input type="checkbox" name="mhist" value="肥胖">肥胖</label>
+      </div>
+
+      <h3 style="font-size:14px">检验检查（选填）</h3>
+      <div class="grid" style="grid-template-columns:1fr 1fr; gap:8px">
+        <div><label>NT-proBNP pg/mL</label><input data-lab="NT-proBNP" placeholder="参考 0–300"></div>
+        <div><label>hs-CRP mg/L</label><input data-lab="hs-CRP" placeholder="参考 0–3"></div>
+        <div><label>D-二聚体 mg/L</label><input data-lab="D-二聚体" placeholder="参考 0–0.5"></div>
+        <div><label>血红蛋白 g/L</label><input data-lab="血红蛋白" placeholder="参考 115–150"></div>
+        <div><label>白蛋白 g/L</label><input data-lab="白蛋白" placeholder="参考 35–52"></div>
+        <div><label>肌酐 μmol/L</label><input data-lab="肌酐" placeholder="参考 41–81"></div>
+        <div><label>糖化血红蛋白 %</label><input data-lab="糖化血红蛋白" placeholder="参考 4–6"></div>
+        <div><label>LDL-C mmol/L</label><input data-lab="LDL-C" placeholder="参考 0–3.4"></div>
+        <div><label>左房内径 mm</label><input data-lab="左房内径" placeholder="参考 25–40"></div>
+        <div><label>射血分数 %</label><input data-lab="射血分数" placeholder="参考 50–75"></div>
+      </div>
+
+      <button id="runMDT" style="width:100%; margin-top:12px; padding:11px; font-size:15px; letter-spacing:.2em">启 动 MDT 会 诊</button>
+      <p style="font-size:11.5px; color:var(--muted); margin-top:8px">自智能问诊带入的素材会自动勾选（localStorage）。</p>
+    </aside>
+
+    <!-- 流水线 -->
+    <section>
+      <div id="mdtSummary" style="display:none"></div>
+      <div class="mdt-stage" id="stage1"><div class="mdt-card"><div class="mdt-line" style="color:var(--muted)">① EHRPromptAgent —— 等待会诊素材……</div></div></div>
+      <div class="mdt-stage" id="stage2"><div class="mdt-card"><div class="mdt-line" style="color:var(--muted)">② ModelPhysicianAgent —— 评分模型待运行（AUC 0.784·23 变量权重）……</div></div></div>
+      <div class="mdt-stage" id="stage3"><div class="mdt-card"><div class="mdt-line" style="color:var(--muted)">③ 三专科智能体 —— 心血管 / 中医辨证 / 全科与用药安全（并行会诊）……</div></div></div>
+      <div class="mdt-stage" id="stage4"><div class="mdt-card"><div class="mdt-line" style="color:var(--muted)">④ MedEvidenceAgent —— 本地知识库 RAG（40 条证据：指南/古籍/本库 5,850 例统计）……</div></div></div>
+      <div class="mdt-stage" id="stage5"><div class="mdt-card"><div class="mdt-line" style="color:var(--muted)">⑤ 主任医师终裁 —— 五段式风险报告生成中……</div></div></div>
+
+      <div class="panel" style="margin-top:18px">
+        <h3 style="margin-top:0">方法学依据</h3>
+        <p style="font-size:13px; line-height:1.9; color:var(--ink-2)">
+          评分权重 = 5,850 例多因素 logistic 回归（table5_risk_score，AUC 0.784，95%CI 0.762–0.811）；分层切点为真实三分位（S≤-0.19 / 0.67），层内事件率 6.3% / 14.9% / 46.0%。
+          RAG 检索 = 关键词重叠 Top-K；证据条目含本库统计（OR/交互项）、指南知识、古籍原文（伤寒论 67/82 条、金匮要略）、方剂配伍与用药安全（十八反/十九畏）。
+          终裁逻辑：三专科投票≥2 为共识，与模型判定相左时<b>显式推翻</b>并记录理由——对应 DeLiriuMAgents「多源合成纠正模型」机制（Cell Rep Med 2026;7:102986）。
+        </p>
+      </div>
+    </section>
+  </div>
+
+  <footer style="margin:36px 0 22px; font-size:12px; color:var(--muted)">
+    <div id="motifFooter"></div>
+    © 2026 xinji.wiki · 本页为科研演示 · 风险概率非个体诊断 · 临床决策遵医嘱
+  </footer>
+</div>
+
+<script src="motifs.js"></script>
+<script src="data/model_priors.js"></script>
+<script src="data/evidence_kb.js"></script>
+<script src="mdt.js"></script>
+</body>
+</html>

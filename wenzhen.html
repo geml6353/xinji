@@ -15,6 +15,7 @@
       <a href="index.html">知识看板</a>
       <a href="guwen.html">古文研习</a>
       <a href="wenzhen.html" class="on">智能问诊</a>
+      <a href="mdt.html">多学科会诊</a>
       <a href="wenda.html">知识问答</a>
     </nav>
   </div>
@@ -157,6 +158,7 @@
         <button class="btn" onclick="generate()">生 成 标 准 病 历 报 告</button>
         <button class="btn ghost" onclick="window.print()">打 印 / 导 出 PDF</button>
         <button class="btn ghost" onclick="downloadMd()">下 载 Markdown</button>
+        <button class="btn ghost" onclick="sendToMDT()">送 入 MDT 会 诊 →</button>
       </div>
     </section>
 
@@ -946,6 +948,25 @@ function downloadMd(){
   a.href = URL.createObjectURL(blob); a.download = `心悸病历_${document.getElementById("date").value}.md`; a.click();
 }
 function esc(t){ return (t||"").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+</script>
+
+<script>
+// 送入 MDT 会诊：抽取当前问诊素材 → mdt.html（localStorage 桥接）
+function sendToMDT(){
+  const g = id => (document.getElementById(id)||{}).value || "";
+  const blob = g("chief")+" "+g("hpi")+" "+g("history")+" "+g("personal")+" "+g("labs")+" "+g("doctorNote");
+  const SYM=["喘憋","双下肢水肿","气短","憋气","胸闷","间断胸闷","乏力","心慌","心悸","头晕","头痛","口干","咳嗽","阵发心慌","言语不利"];
+  const PUL=["沉","短","代","滑","弦","细","弱","迟","数","促","结"];
+  const TNG=["红","黄","老","淡","紫暗","胖","齿痕","瘀斑"];
+  const c = {
+    chief: g("chief"),
+    syms: SYM.filter(s=>blob.includes(s)),
+    pulse: PUL.filter(p=>blob.includes("脉"+p)||blob.includes("脉"+p+"脉")||blob.includes(p+"脉")).slice(0,4),
+    tongue: TNG.filter(t=>blob.includes("舌"+t)||blob.includes(t+"苔")||blob.includes("苔"+t)).slice(0,4)
+  };
+  localStorage.setItem("mdt_case", JSON.stringify(c));
+  location.href = "mdt.html";
+}
 </script>
 </body>
 </html>
